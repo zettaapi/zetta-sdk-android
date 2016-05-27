@@ -8,13 +8,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public class ZIKRoot {
-
     @Nullable private ZIKLink href;
     @Nullable private ArrayList<ZIKLink> links;
     @Nullable private ArrayList<HashMap> actions;
 
-    @Nullable
-    @JsonProperty("links")
+    @Nullable @JsonProperty("links")
     public ArrayList<ZIKLink> getLinks() {
         return this.links;
     }
@@ -30,13 +28,12 @@ public class ZIKRoot {
         this.links = links;
     }
 
-    @Nullable
-    @JsonProperty("actions")
+    @Nullable @JsonProperty("actions")
     public ArrayList<HashMap> getActions() {
         return this.actions;
     }
     @JsonProperty("actions")
-    public void setActions(@Nullable final ArrayList<HashMap> actions) {
+    private void setActions(@Nullable final ArrayList<HashMap> actions) {
         this.actions = actions;
     }
 }

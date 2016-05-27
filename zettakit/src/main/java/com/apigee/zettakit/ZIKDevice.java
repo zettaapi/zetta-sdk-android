@@ -19,7 +19,7 @@ public class ZIKDevice {
     @NonNull private HashMap<String,JsonNode> properties;
     @Nullable private ArrayList<ZIKLink> links;
     @Nullable private ArrayList<ZIKLink> streams;
-
+    @Nullable private ArrayList<ZIKTransition> transitions;
 
     public ZIKDevice(@JsonProperty("properties") @NonNull final HashMap<String,JsonNode> properties) {
         this.properties = properties;
@@ -47,10 +47,16 @@ public class ZIKDevice {
     @Nullable @JsonIgnore
     public String getState() { return this.state; }
 
+    @Nullable @JsonIgnore
+    public ArrayList<ZIKLink> getStreams() { return this.streams; }
+
+    @NonNull @JsonProperty("properties")
+    public HashMap<String, JsonNode> getProperties() { return this.properties; }
+
     @Nullable @JsonProperty("links")
     public ArrayList<ZIKLink> getLinks() { return this.links; }
     @JsonProperty("links")
-    public void setLinks(@Nullable final ArrayList<ZIKLink> links) {
+    private void setLinks(@Nullable final ArrayList<ZIKLink> links) {
         this.links = links;
         if( links != null ) {
             ArrayList<ZIKLink> streams = new ArrayList<>();
@@ -65,4 +71,8 @@ public class ZIKDevice {
         }
     }
 
+    @Nullable @JsonProperty("actions")
+    public ArrayList<ZIKTransition> getTransitions() { return this.transitions; }
+    @JsonProperty("actions")
+    private void setTransitions(@Nullable final ArrayList<ZIKTransition> transitions) { this.transitions = transitions; }
 }

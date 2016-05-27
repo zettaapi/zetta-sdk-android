@@ -9,17 +9,17 @@ import java.util.ArrayList;
 
 public class ZIKLink {
 
-    @Nullable private String href;
+    @NonNull private String href;
     @Nullable private String title;
     @Nullable private ArrayList<String> rel;
 
-    @Nullable
+    @NonNull
     @JsonProperty("href")
     public String getHref() {
         return this.href;
     }
     @JsonProperty("href")
-    private void setHref(@Nullable String href) {
+    private void setHref(@NonNull String href) {
         this.href = href;
     }
 
