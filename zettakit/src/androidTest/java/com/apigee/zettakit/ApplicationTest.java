@@ -22,15 +22,16 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
     public void testGET() throws InterruptedException {
         final CountDownLatch signal = new CountDownLatch(1);
         ZIKSession.init(this.getContext());
-        ZIKSession.getSharedSession().getRoot("http://v1-staging.iot.apigee.net/", new ZIKRootCallback() {
+        final ZIKSession sharedSession = ZIKSession.getSharedSession();
+        sharedSession.getRoot("http://v1-staging.iot.apigee.net/", new ZIKRootCallback() {
             @Override
             public void onSuccess(@NonNull ZIKRoot root) {
-                ZIKSession.getSharedSession().getServers(root, new ZIKServersCallback() {
+                sharedSession.getServers(root, new ZIKServersCallback() {
                     @Override
                     public void onFinished(@Nullable List<ZIKServer> servers) {
                         if( servers != null && !servers.isEmpty() ) {
                             ZIKServer server = servers.get(0);
-                            ZIKSession.getSharedSession().getDevices(server, new ZIKDevicesCallback() {
+                            sharedSession.getDevices(server, new ZIKDevicesCallback() {
                                 @Override
                                 public void onFinished(@Nullable List<ZIKDevice> devices) {
                                     signal.countDown();

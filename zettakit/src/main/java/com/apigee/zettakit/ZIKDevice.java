@@ -8,35 +8,41 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 public class ZIKDevice {
-    @NonNull private String uuid;
-    @NonNull private String type;
-    @Nullable private String name;
-    @Nullable private String state;
+    @NonNull private final ZIKDeviceId deviceId;
+    @NonNull private final String type;
+    @Nullable private final String name;
+    @Nullable private final String state;
 
-    @NonNull private HashMap<String,JsonNode> properties;
-    @Nullable private ArrayList<ZIKLink> links;
-    @Nullable private ArrayList<ZIKLink> streams;
-    @Nullable private ArrayList<ZIKTransition> transitions;
+    @NonNull private final Map<String,JsonNode> properties;
+    @Nullable private List<ZIKLink> links;
+    @Nullable private List<ZIKLink> streams;
+    @Nullable private List<ZIKTransition> transitions;
 
-    public ZIKDevice(@JsonProperty("properties") @NonNull final HashMap<String,JsonNode> properties) {
+    public ZIKDevice(@JsonProperty("properties") @NonNull final Map<String,JsonNode> properties) {
         this.properties = properties;
-        this.uuid = properties.get("id").asText();
+        this.deviceId = new ZIKDeviceId(UUID.fromString(properties.get("id").asText()));
         this.type = properties.get("type").asText();
         final JsonNode nameNode = properties.get("name");
         if( nameNode != null ) {
             this.name = nameNode.asText(null);
+        } else {
+            this.name = null;
         }
         final JsonNode stateNode = properties.get("state");
         if( stateNode != null ) {
             this.state = stateNode.asText(null);
+        } else {
+            this.state = null;
         }
     }
 
     @NonNull @JsonIgnore
-    public String getUuid() { return this.uuid; }
+    public ZIKDeviceId getDeviceId() { return this.deviceId; }
 
     @NonNull @JsonIgnore
     public String getType() { return this.type; }
@@ -48,13 +54,13 @@ public class ZIKDevice {
     public String getState() { return this.state; }
 
     @Nullable @JsonIgnore
-    public ArrayList<ZIKLink> getStreams() { return this.streams; }
+    public List<ZIKLink> getStreams() { return this.streams; }
 
     @NonNull @JsonProperty("properties")
-    public HashMap<String, JsonNode> getProperties() { return this.properties; }
+    public Map<String, JsonNode> getProperties() { return this.properties; }
 
     @Nullable @JsonProperty("links")
-    public ArrayList<ZIKLink> getLinks() { return this.links; }
+    public List<ZIKLink> getLinks() { return this.links; }
     @JsonProperty("links")
     private void setLinks(@Nullable final ArrayList<ZIKLink> links) {
         this.links = links;
@@ -72,7 +78,7 @@ public class ZIKDevice {
     }
 
     @Nullable @JsonProperty("actions")
-    public ArrayList<ZIKTransition> getTransitions() { return this.transitions; }
+    public List<ZIKTransition> getTransitions() { return this.transitions; }
     @JsonProperty("actions")
     private void setTransitions(@Nullable final ArrayList<ZIKTransition> transitions) { this.transitions = transitions; }
 }

@@ -5,13 +5,13 @@ import android.support.annotation.Nullable;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import java.util.ArrayList;
+import java.util.List;
 
 public class ZIKLink {
 
     @NonNull private String href;
     @Nullable private String title;
-    @Nullable private ArrayList<String> rel;
+    @Nullable private List<String> rel;
 
     @NonNull
     @JsonProperty("href")
@@ -35,11 +35,11 @@ public class ZIKLink {
 
     @Nullable
     @JsonProperty("rel")
-    public ArrayList<String> getRel() {
+    public List<String> getRel() {
         return this.rel;
     }
     @JsonProperty("rel")
-    private void setRel(@Nullable ArrayList<String> rel) {
+    private void setRel(@Nullable List<String> rel) {
         this.rel = rel;
     }
 
