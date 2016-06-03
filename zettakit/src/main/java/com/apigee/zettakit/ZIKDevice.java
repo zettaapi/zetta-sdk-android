@@ -20,7 +20,7 @@ public class ZIKDevice {
 
     @NonNull private final Map<String,JsonNode> properties;
     @Nullable private List<ZIKLink> links;
-    @Nullable private List<ZIKLink> streams;
+    @Nullable private List<ZIKLink> streamLinks;
     @Nullable private List<ZIKTransition> transitions;
 
     public ZIKDevice(@JsonProperty("properties") @NonNull final Map<String,JsonNode> properties) {
@@ -53,9 +53,6 @@ public class ZIKDevice {
     @Nullable @JsonIgnore
     public String getState() { return this.state; }
 
-    @Nullable @JsonIgnore
-    public List<ZIKLink> getStreams() { return this.streams; }
-
     @NonNull @JsonProperty("properties")
     public Map<String, JsonNode> getProperties() { return this.properties; }
 
@@ -65,14 +62,14 @@ public class ZIKDevice {
     private void setLinks(@Nullable final ArrayList<ZIKLink> links) {
         this.links = links;
         if( links != null ) {
-            ArrayList<ZIKLink> streams = new ArrayList<>();
+            ArrayList<ZIKLink> streamLinks = new ArrayList<>();
             for( ZIKLink link : links ) {
                 if( link.hasRel("monitor") ) {
-                    streams.add(link);
+                    streamLinks.add(link);
                 }
             }
-            if( !streams.isEmpty() ) {
-                this.streams = streams;
+            if( !streamLinks.isEmpty() ) {
+                this.streamLinks = streamLinks;
             }
         }
     }
@@ -80,5 +77,32 @@ public class ZIKDevice {
     @Nullable @JsonProperty("actions")
     public List<ZIKTransition> getTransitions() { return this.transitions; }
     @JsonProperty("actions")
-    private void setTransitions(@Nullable final ArrayList<ZIKTransition> transitions) { this.transitions = transitions; }
+    private void setTransitions(@Nullable final List<ZIKTransition> transitions) { this.transitions = transitions; }
+
+    @Nullable
+    public ZIKStream stream(@NonNull final String name) {
+        List<ZIKLink> streamLinks = this.streamLinks;
+        ZIKStream stream = null;
+        if( streamLinks != null && !streamLinks.isEmpty() ) {
+            for( ZIKLink streamLink : streamLinks ) {
+                String streamLinkTitle = streamLink.getTitle();
+                if( streamLinkTitle != null && streamLinkTitle.equalsIgnoreCase(name) ) {
+                    stream = new ZIKStream(streamLink);
+                }
+            }
+        }
+        return stream;
+    }
+
+    @NonNull
+    public List<ZIKStream> getAllStreams() {
+        List<ZIKLink> streamLinks = this.streamLinks;
+        ArrayList<ZIKStream> streams = new ArrayList<>();
+        if (streamLinks != null && !streamLinks.isEmpty()) {
+            for( ZIKLink link : streamLinks ) {
+                streams.add(new ZIKStream(link));
+            }
+        }
+        return streams;
+    }
 }

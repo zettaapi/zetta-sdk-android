@@ -55,12 +55,12 @@ public class ZIKDevicesAsyncTask extends AsyncTask<Void,Void,Void> {
                 session.addHeadersToRequest(requestBuilder);
                 Request request = requestBuilder.get().build();
                 try {
-                    Response response = session.httpClient.newCall(request).execute();
+                    Response response = ZIKSession.httpClient.newCall(request).execute();
                     if( response.isSuccessful() ) {
-                        JsonNode jsonNode = session.jsonMapper.readTree(response.body().string());
+                        JsonNode jsonNode = ZIKSession.jsonMapper.readTree(response.body().string());
                         if( jsonNode != null ) {
                             JsonParser jsonParser = jsonNode.traverse();
-                            ZIKDevice device = session.jsonMapper.readValue(jsonParser,ZIKDevice.class);
+                            ZIKDevice device = ZIKSession.jsonMapper.readValue(jsonParser,ZIKDevice.class);
                             loadedDevices.add(device);
                         }
                     }

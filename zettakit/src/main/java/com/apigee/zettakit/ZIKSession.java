@@ -28,15 +28,17 @@ import okhttp3.Response;
 public class ZIKSession {
 
     @Nullable private static Context appContext;
+
+    @NonNull public static OkHttpClient httpClient = new OkHttpClient();
+    @NonNull public static ObjectMapper jsonMapper = new ObjectMapper();
     @NonNull private static ZIKSession sharedSession = new ZIKSession();
+
     @NonNull public static ZIKSession getSharedSession() {
         return ZIKSession.sharedSession;
     }
 
     @Nullable public HttpUrl apiEndpoint;
     @NonNull private HashMap<String,Object> headers = new HashMap<>();
-    @NonNull public OkHttpClient httpClient = new OkHttpClient();
-    @NonNull public ObjectMapper jsonMapper = new ObjectMapper();
 
     public static void init(@NonNull final Context context) {
         ZIKSession.appContext = context.getApplicationContext();
