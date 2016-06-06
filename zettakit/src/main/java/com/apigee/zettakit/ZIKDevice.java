@@ -19,6 +19,7 @@ public class ZIKDevice {
     @Nullable private final String state;
 
     @NonNull private final Map<String,JsonNode> properties;
+    @Nullable private final ZIKStyle style;
     @Nullable private List<ZIKLink> links;
     @Nullable private List<ZIKLink> streamLinks;
     @Nullable private List<ZIKTransition> transitions;
@@ -39,6 +40,12 @@ public class ZIKDevice {
         } else {
             this.state = null;
         }
+        final JsonNode styleNode = properties.get("style");
+        if( styleNode != null ) {
+            this.style = ZIKSession.jsonMapper.convertValue(styleNode,ZIKStyle.class);
+        } else {
+            this.style = null;
+        }
     }
 
     @NonNull @JsonIgnore
@@ -52,6 +59,9 @@ public class ZIKDevice {
 
     @Nullable @JsonIgnore
     public String getState() { return this.state; }
+
+    @Nullable @JsonIgnore
+    public ZIKStyle getStyle() { return this.style; }
 
     @NonNull @JsonProperty("properties")
     public Map<String, JsonNode> getProperties() { return this.properties; }

@@ -1,5 +1,6 @@
 package com.apigee.zettakit;
 
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -11,29 +12,38 @@ import java.util.Map;
 
 public class ZIKServer {
 
-    @Nullable private String name;
-    @Nullable private Map<String,JsonNode> properties;
+    @Nullable private final String name;
+    @Nullable private final Map<String,JsonNode> properties;
 
     @Nullable private List<ZIKDevice> devices;
     @Nullable private List<ZIKLink> links;
     @Nullable private List<ZIKTransition> transitions;
+    @Nullable private ZIKStyle style;
+
+    public ZIKServer(@JsonProperty("properties") @NonNull final Map<String,JsonNode> properties) {
+        this.properties = properties;
+        final JsonNode nameNode = properties.get("name");
+        if( nameNode != null ) {
+            this.name = nameNode.asText(null);
+        } else {
+            this.name = null;
+        }
+        final JsonNode styleNode = properties.get("style");
+        if( styleNode != null ) {
+            this.style = ZIKSession.jsonMapper.convertValue(styleNode,ZIKStyle.class);
+        } else {
+            this.style = null;
+        }
+    }
 
     @Nullable @JsonIgnore
     public String getName() { return this.name; }
 
+    @Nullable @JsonIgnore
+    public ZIKStyle getStyle() { return this.style; }
+
     @Nullable @JsonProperty("properties")
     public Map<String,JsonNode> getProperties() { return this.properties; }
-    @JsonProperty("properties")
-    private void setProperties(@Nullable final Map<String,JsonNode> properties) {
-        this.properties = properties;
-        this.name = null;
-        if( properties != null ) {
-            final JsonNode nameNode = properties.get("name");
-            if( nameNode != null ) {
-                this.name = nameNode.asText(null);
-            }
-        }
-    }
 
     @Nullable @JsonProperty("links")
     public List<ZIKLink> getLinks() { return this.links; }
