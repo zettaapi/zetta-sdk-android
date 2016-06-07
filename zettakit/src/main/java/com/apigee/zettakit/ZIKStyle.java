@@ -1,11 +1,17 @@
 package com.apigee.zettakit;
 
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
+import com.apigee.zettakit.utils.ZIKJsonUtils;
+
+import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
 
-public class ZIKStyle {
+public class ZIKStyle implements Parcelable {
     private static final String BACKGROUND_COLOR = "backgroundColor";
     private static final String FOREGROUND_COLOR = "foregroundColor";
 
@@ -35,4 +41,43 @@ public class ZIKStyle {
             this.foregroundColor = null;
         }
     }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(ZIKJsonUtils.mapToJsonString(this.properties));
+        dest.writeString(ZIKJsonUtils.mapToJsonString(this.actions));
+        dest.writeParcelable(this.backgroundColor, flags);
+        dest.writeParcelable(this.foregroundColor, flags);
+    }
+
+    @SuppressWarnings("unchecked")
+    protected ZIKStyle(Parcel in) {
+        Map<String,Object> properties = new HashMap<>();
+        Map<String,Object> actions = new HashMap<>();
+        try {
+            properties = (Map<String,Object>)ZIKJsonUtils.createObjectFromJson(Map.class,in.readString());
+            actions = (Map<String,Object>)ZIKJsonUtils.createObjectFromJson(Map.class,in.readString());
+        } catch (IOException ignored) { }
+        this.properties = properties;
+        this.actions = actions;
+        this.backgroundColor = in.readParcelable(ZIKStyleColor.class.getClassLoader());
+        this.foregroundColor = in.readParcelable(ZIKStyleColor.class.getClassLoader());
+    }
+
+    public static final Parcelable.Creator<ZIKStyle> CREATOR = new Parcelable.Creator<ZIKStyle>() {
+        @Override
+        public ZIKStyle createFromParcel(Parcel source) {
+            return new ZIKStyle(source);
+        }
+
+        @Override
+        public ZIKStyle[] newArray(int size) {
+            return new ZIKStyle[size];
+        }
+    };
 }

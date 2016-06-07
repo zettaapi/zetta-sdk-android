@@ -1,14 +1,20 @@
 package com.apigee.zettakit;
 
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
+import com.apigee.zettakit.utils.ZIKJsonUtils;
+
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class ZIKDevice {
+public class ZIKDevice implements Parcelable {
     private static final String ID = "id";
     private static final String TYPE = "type";
     private static final String NAME = "name";
@@ -94,4 +100,51 @@ public class ZIKDevice {
         }
         return streams;
     }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeParcelable(this.deviceId, flags);
+        dest.writeString(this.type);
+        dest.writeString(this.name);
+        dest.writeString(this.state);
+        dest.writeParcelable(this.style, flags);
+        dest.writeString(ZIKJsonUtils.mapToJsonString(this.properties));
+        dest.writeTypedList(this.links);
+        dest.writeTypedList(this.streamLinks);
+        dest.writeTypedList(this.transitions);
+    }
+
+    @SuppressWarnings("unchecked")
+    protected ZIKDevice(Parcel in) {
+        this.deviceId = in.readParcelable(ZIKDeviceId.class.getClassLoader());
+        this.type = in.readString();
+        this.name = in.readString();
+        this.state = in.readString();
+        this.style = in.readParcelable(ZIKStyle.class.getClassLoader());
+        Map<String,Object> properties = new HashMap<>();
+        try {
+            properties = (Map<String,Object>)ZIKJsonUtils.createObjectFromJson(Map.class,in.readString());
+        } catch (IOException ignored) { }
+        this.properties = properties;
+        this.links = in.createTypedArrayList(ZIKLink.CREATOR);
+        this.streamLinks = in.createTypedArrayList(ZIKLink.CREATOR);
+        this.transitions = in.createTypedArrayList(ZIKTransition.CREATOR);
+    }
+
+    public static final Parcelable.Creator<ZIKDevice> CREATOR = new Parcelable.Creator<ZIKDevice>() {
+        @Override
+        public ZIKDevice createFromParcel(Parcel source) {
+            return new ZIKDevice(source);
+        }
+
+        @Override
+        public ZIKDevice[] newArray(int size) {
+            return new ZIKDevice[size];
+        }
+    };
 }

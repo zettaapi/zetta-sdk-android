@@ -12,6 +12,7 @@ import com.squareup.moshi.JsonAdapter;
 import com.squareup.moshi.Moshi;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 
 public final class ZIKJsonUtils {
@@ -44,5 +45,10 @@ public final class ZIKJsonUtils {
     @NonNull
     public static String mapToJsonString(@NonNull final Map jsonMap) {
         return ZIKJsonUtils.jsonAdapter(Map.class).toJson(jsonMap);
+    }
+
+    @NonNull
+    public static String listToJsonString(@NonNull final List list) {
+        return ZIKJsonUtils.jsonAdapter(List.class).toJson(list);
     }
 }

@@ -1,12 +1,14 @@
 package com.apigee.zettakit;
 
 import android.graphics.Color;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.support.annotation.NonNull;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public class ZIKStyleColor {
+public class ZIKStyleColor implements Parcelable {
     private static final String HEX = "hex";
     private static final String DECIMAL = "decimal";
     private static final String RED = "red";
@@ -53,4 +55,44 @@ public class ZIKStyleColor {
             this.decimal = decimalMap;
         }
     }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(this.hex);
+        dest.writeInt(this.decimal.size());
+        for (Map.Entry<String, Integer> entry : this.decimal.entrySet()) {
+            dest.writeString(entry.getKey());
+            dest.writeValue(entry.getValue());
+        }
+        dest.writeInt(this.color);
+    }
+
+    protected ZIKStyleColor(Parcel in) {
+        this.hex = in.readString();
+        int decimalSize = in.readInt();
+        this.decimal = new HashMap<String, Integer>(decimalSize);
+        for (int i = 0; i < decimalSize; i++) {
+            String key = in.readString();
+            Double value = (Double) in.readValue(Integer.class.getClassLoader());
+            this.decimal.put(key, value.intValue());
+        }
+        this.color = in.readInt();
+    }
+
+    public static final Parcelable.Creator<ZIKStyleColor> CREATOR = new Parcelable.Creator<ZIKStyleColor>() {
+        @Override
+        public ZIKStyleColor createFromParcel(Parcel source) {
+            return new ZIKStyleColor(source);
+        }
+
+        @Override
+        public ZIKStyleColor[] newArray(int size) {
+            return new ZIKStyleColor[size];
+        }
+    };
 }
