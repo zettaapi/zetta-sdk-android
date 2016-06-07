@@ -2,13 +2,13 @@ package com.apigee.zettakit;
 
 import android.app.Application;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.test.ApplicationTestCase;
 
 import com.apigee.zettakit.callbacks.ZIKDevicesCallback;
 import com.apigee.zettakit.callbacks.ZIKRootCallback;
 import com.apigee.zettakit.callbacks.ZIKServersCallback;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -25,32 +25,40 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
         final CountDownLatch signal = new CountDownLatch(1);
         ZIKSession.init(this.getContext());
         final ZIKSession sharedSession = ZIKSession.getSharedSession();
-        sharedSession.getRoot("http://stage.zettaapi.org", new ZIKRootCallback() {
+        sharedSession.getRootAsync("http://stage.zettaapi.org", new ZIKRootCallback() {
             @Override
             public void onSuccess(@NonNull ZIKRoot root) {
-                sharedSession.getServers(root, new ZIKServersCallback() {
+                sharedSession.getServersAsync(root, new ZIKServersCallback() {
                     @Override
-                    public void onFinished(@Nullable List<ZIKServer> servers) {
-                        if (servers != null && !servers.isEmpty()) {
-                            ZIKServer server = servers.get(0);
-                            sharedSession.getDevices(server, new ZIKDevicesCallback() {
+                    public void onSuccess(@NonNull List<ZIKServer> servers) {
+                        if (!servers.isEmpty()) {
+                            ZIKServer server = servers.get(1);
+                            sharedSession.getDevicesAsync(server, new ZIKDevicesCallback() {
                                 @Override
-                                public void onFinished(@Nullable List<ZIKDevice> devices) {
+                                public void onSuccess(@NonNull List<ZIKDevice> devices) {
                                     signal.countDown();
+                                }
+                                @Override
+                                public void onFailure(@NonNull IOException exception) {
+                                    throw new IllegalStateException("unexpected code path for this test");
                                 }
                             });
                         } else {
                             throw new IllegalStateException("unexpected code path for this test");
                         }
                     }
+                    @Override
+                    public void onFailure(@NonNull IOException exception) {
+                        throw new IllegalStateException("unexpected code path for this test");
+                    }
                 });
             }
 
             @Override
-            public void onError(@NonNull String error) {
-                throw new IllegalStateException("unexpected code path for this test");
+            public void onFailure(@NonNull IOException exception) {
+                throw new IllegalStateException("unexpected code path for this test" + exception.toString());
             }
         });
-        signal.await(30, TimeUnit.SECONDS);
+        signal.await(120, TimeUnit.SECONDS);
     }
 }
