@@ -3,14 +3,9 @@ package com.apigee.zettakit;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.JsonNode;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 public class ZIKDevice {
     @NonNull private final ZIKDeviceId deviceId;
@@ -18,82 +13,60 @@ public class ZIKDevice {
     @Nullable private final String name;
     @Nullable private final String state;
 
-    @NonNull private final Map<String,JsonNode> properties;
+    @NonNull private final Map properties;
     @Nullable private final ZIKStyle style;
-    @Nullable private List<ZIKLink> links;
-    @Nullable private List<ZIKLink> streamLinks;
-    @Nullable private List<ZIKTransition> transitions;
+    @NonNull private final List<ZIKLink> links;
+    @NonNull private final List<ZIKLink> streamLinks;
+    @NonNull private final List<ZIKTransition> transitions;
 
-    public ZIKDevice(@JsonProperty("properties") @NonNull final Map<String,JsonNode> properties) {
+    @NonNull public ZIKDeviceId getDeviceId() { return this.deviceId; }
+    @NonNull public String getType() { return this.type; }
+    @Nullable public String getName() { return this.name; }
+    @Nullable public String getState() { return this.state; }
+    @Nullable public ZIKStyle getStyle() { return this.style; }
+
+    @NonNull public Map getProperties() { return this.properties; }
+    @NonNull public List<ZIKLink> getLinks() { return this.links; }
+    @NonNull public List<ZIKTransition> getTransitions() { return this.transitions; }
+
+    public ZIKDevice(@NonNull final Map properties, @NonNull final List<ZIKLink> links, @NonNull final List<ZIKTransition> transitions, @Nullable final ZIKStyle style) {
         this.properties = properties;
-        this.deviceId = new ZIKDeviceId(UUID.fromString(properties.get("id").asText()));
-        this.type = properties.get("type").asText();
-        final JsonNode nameNode = properties.get("name");
-        if( nameNode != null ) {
-            this.name = nameNode.asText(null);
+        this.links = links;
+        this.style = style;
+        this.transitions = transitions;
+
+        this.deviceId = new ZIKDeviceId(properties.get("id").toString());
+        this.type = properties.get("type").toString();
+        Object nameObject = properties.get("name");
+        if( nameObject != null ) {
+            this.name = nameObject.toString();
         } else {
             this.name = null;
         }
-        final JsonNode stateNode = properties.get("state");
-        if( stateNode != null ) {
-            this.state = stateNode.asText(null);
+        Object stateObject = properties.get("state");
+        if( stateObject != null ) {
+            this.state = stateObject.toString();
         } else {
             this.state = null;
         }
-        final JsonNode styleNode = properties.get("style");
-        if( styleNode != null ) {
-            this.style = ZIKSession.jsonMapper.convertValue(styleNode,ZIKStyle.class);
-        } else {
-            this.style = null;
-        }
-    }
 
-    @NonNull @JsonIgnore
-    public ZIKDeviceId getDeviceId() { return this.deviceId; }
-
-    @NonNull @JsonIgnore
-    public String getType() { return this.type; }
-
-    @Nullable @JsonIgnore
-    public String getName() { return this.name; }
-
-    @Nullable @JsonIgnore
-    public String getState() { return this.state; }
-
-    @Nullable @JsonIgnore
-    public ZIKStyle getStyle() { return this.style; }
-
-    @NonNull @JsonProperty("properties")
-    public Map<String, JsonNode> getProperties() { return this.properties; }
-
-    @Nullable @JsonProperty("links")
-    public List<ZIKLink> getLinks() { return this.links; }
-    @JsonProperty("links")
-    private void setLinks(@Nullable final ArrayList<ZIKLink> links) {
-        this.links = links;
-        if( links != null ) {
+        if( !links.isEmpty() ) {
             ArrayList<ZIKLink> streamLinks = new ArrayList<>();
             for( ZIKLink link : links ) {
                 if( link.hasRel("monitor") ) {
                     streamLinks.add(link);
                 }
             }
-            if( !streamLinks.isEmpty() ) {
-                this.streamLinks = streamLinks;
-            }
+            this.streamLinks = streamLinks;
+        } else {
+            this.streamLinks = new ArrayList<>();
         }
     }
 
-    @Nullable @JsonProperty("actions")
-    public List<ZIKTransition> getTransitions() { return this.transitions; }
-    @JsonProperty("actions")
-    private void setTransitions(@Nullable final List<ZIKTransition> transitions) { this.transitions = transitions; }
-
     @Nullable
     public ZIKStream stream(@NonNull final String name) {
-        List<ZIKLink> streamLinks = this.streamLinks;
         ZIKStream stream = null;
-        if( streamLinks != null && !streamLinks.isEmpty() ) {
+        if( !streamLinks.isEmpty() ) {
             for( ZIKLink streamLink : streamLinks ) {
                 String streamLinkTitle = streamLink.getTitle();
                 if( streamLinkTitle != null && streamLinkTitle.equalsIgnoreCase(name) ) {
@@ -106,9 +79,8 @@ public class ZIKDevice {
 
     @NonNull
     public List<ZIKStream> getAllStreams() {
-        List<ZIKLink> streamLinks = this.streamLinks;
         ArrayList<ZIKStream> streams = new ArrayList<>();
-        if (streamLinks != null && !streamLinks.isEmpty()) {
+        if ( !streamLinks.isEmpty() ) {
             for( ZIKLink link : streamLinks ) {
                 streams.add(new ZIKStream(link));
             }

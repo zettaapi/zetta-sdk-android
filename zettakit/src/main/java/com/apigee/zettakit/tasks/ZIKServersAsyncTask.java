@@ -8,10 +8,9 @@ import com.apigee.zettakit.ZIKLink;
 import com.apigee.zettakit.ZIKRoot;
 import com.apigee.zettakit.ZIKServer;
 import com.apigee.zettakit.ZIKSession;
-import com.apigee.zettakit.ZIKUtils;
+import com.apigee.zettakit.utils.ZIKJsonUtils;
+import com.apigee.zettakit.utils.ZIKUtils;
 import com.apigee.zettakit.callbacks.ZIKServersCallback;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.JsonNode;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -36,7 +35,7 @@ public class ZIKServersAsyncTask extends AsyncTask<Void,Void,Void> {
     protected Void doInBackground(final Void... v) {
         final ArrayList<ZIKLink> serverLinks = new ArrayList<>();
         List<ZIKLink> rootLinks = root.getLinks();
-        if( rootLinks != null && !rootLinks.isEmpty() ) {
+        if( !rootLinks.isEmpty() ) {
             String serverRel = ZIKUtils.generateRelForString("server");
             for( ZIKLink rootLink : rootLinks ) {
                 if( rootLink.hasRel(serverRel)) {
@@ -54,12 +53,8 @@ public class ZIKServersAsyncTask extends AsyncTask<Void,Void,Void> {
                 try {
                     Response response = ZIKSession.httpClient.newCall(request).execute();
                     if( response.isSuccessful() ) {
-                        JsonNode jsonNode = ZIKSession.jsonMapper.readTree(response.body().string());
-                        if( jsonNode != null ) {
-                            JsonParser jsonParser = jsonNode.traverse();
-                            ZIKServer server = ZIKSession.jsonMapper.readValue(jsonParser,ZIKServer.class);
-                            servers.add(server);
-                        }
+                        ZIKServer server = ZIKJsonUtils.createObjectFromJson(ZIKServer.class,response.body().string());
+                        servers.add(server);
                     }
                 } catch( IOException ignored ) { }
             }

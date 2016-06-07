@@ -3,43 +3,24 @@ package com.apigee.zettakit;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 import java.util.List;
 
 public class ZIKLink {
+    @NonNull private final String href;
+    @Nullable private final String title;
+    @Nullable private final List<String> rel;
 
-    @NonNull private String href;
-    @Nullable private String title;
-    @Nullable private List<String> rel;
-
-    @NonNull
-    @JsonProperty("href")
-    public String getHref() {
+    @NonNull public String getHref() {
         return this.href;
     }
-    @JsonProperty("href")
-    private void setHref(@NonNull String href) {
-        this.href = href;
-    }
-
-    @Nullable
-    @JsonProperty("title")
-    public String getTitle() {
+    @Nullable public String getTitle() {
         return this.title;
     }
-    @JsonProperty("title")
-    private void setTitle(@Nullable String title) {
-        this.title = title;
-    }
+    @Nullable public List<String> getRel() { return this.rel; }
 
-    @Nullable
-    @JsonProperty("rel")
-    public List<String> getRel() {
-        return this.rel;
-    }
-    @JsonProperty("rel")
-    private void setRel(@Nullable List<String> rel) {
+    public ZIKLink(@NonNull final String href, @Nullable final String title, @Nullable final List<String> rel) {
+        this.href = href;
+        this.title = title;
         this.rel = rel;
     }
 

@@ -9,8 +9,7 @@ import com.apigee.zettakit.ZIKLink;
 import com.apigee.zettakit.ZIKServer;
 import com.apigee.zettakit.ZIKSession;
 import com.apigee.zettakit.callbacks.ZIKDevicesCallback;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.JsonNode;
+import com.apigee.zettakit.utils.ZIKJsonUtils;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -35,10 +34,10 @@ public class ZIKDevicesAsyncTask extends AsyncTask<Void,Void,Void> {
     protected Void doInBackground(final Void... v) {
         final ArrayList<ZIKLink> devicesLinks = new ArrayList<>();
         List<ZIKDevice> serverDevices = server.getDevices();
-        if( serverDevices != null && !serverDevices.isEmpty() ) {
+        if( !serverDevices.isEmpty() ) {
             for( ZIKDevice device : serverDevices ) {
                 List<ZIKLink> deviceLinks = device.getLinks();
-                if( deviceLinks != null && !deviceLinks.isEmpty() ) {
+                if( !deviceLinks.isEmpty() ) {
                     for( ZIKLink deviceLink : deviceLinks ) {
                         if( deviceLink.isSelf() ) {
                             devicesLinks.add(deviceLink);
@@ -57,12 +56,8 @@ public class ZIKDevicesAsyncTask extends AsyncTask<Void,Void,Void> {
                 try {
                     Response response = ZIKSession.httpClient.newCall(request).execute();
                     if( response.isSuccessful() ) {
-                        JsonNode jsonNode = ZIKSession.jsonMapper.readTree(response.body().string());
-                        if( jsonNode != null ) {
-                            JsonParser jsonParser = jsonNode.traverse();
-                            ZIKDevice device = ZIKSession.jsonMapper.readValue(jsonParser,ZIKDevice.class);
-                            loadedDevices.add(device);
-                        }
+                        ZIKDevice device = ZIKJsonUtils.createObjectFromJson(ZIKDevice.class,response.body().string());
+                        loadedDevices.add(device);
                     }
                 } catch( IOException ignored ) { }
             }

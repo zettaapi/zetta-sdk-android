@@ -1,4 +1,4 @@
-package com.apigee.zettakit;
+package com.apigee.zettakit.utils;
 
 import android.support.annotation.NonNull;
 

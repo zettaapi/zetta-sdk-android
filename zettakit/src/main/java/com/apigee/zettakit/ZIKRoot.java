@@ -1,39 +1,28 @@
 package com.apigee.zettakit;
 
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class ZIKRoot {
     @Nullable private ZIKLink href;
-    @Nullable private ArrayList<ZIKLink> links;
-    @Nullable private ArrayList<HashMap> actions;
+    @NonNull  private final List<ZIKLink> links;
+    @NonNull  private final List<Map> actions;
 
-    @Nullable @JsonProperty("links")
-    public ArrayList<ZIKLink> getLinks() {
-        return this.links;
-    }
-    @JsonProperty("links")
-    private void setLinks(@Nullable final ArrayList<ZIKLink> links) {
-        if( links != null ) {
-            for( ZIKLink link : links ) {
-                if( link.isSelf() ) {
-                    this.href = link;
-                }
+    @Nullable public ZIKLink getHref() { return this.href; }
+    @NonNull  public List<Map> getActions() { return this.actions; }
+    @NonNull  public List<ZIKLink> getLinks() { return this.links; }
+
+    public ZIKRoot(@NonNull final List<ZIKLink> links, @NonNull final List<Map> actions) {
+        this.links = links;
+        this.actions = actions;
+        for( ZIKLink link : this.links ) {
+            if( link.isSelf() ) {
+                this.href = link;
+                break;
             }
         }
-        this.links = links;
-    }
-
-    @Nullable @JsonProperty("actions")
-    public ArrayList<HashMap> getActions() {
-        return this.actions;
-    }
-    @JsonProperty("actions")
-    private void setActions(@Nullable final ArrayList<HashMap> actions) {
-        this.actions = actions;
     }
 }

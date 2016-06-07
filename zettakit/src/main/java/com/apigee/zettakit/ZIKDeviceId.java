@@ -5,14 +5,13 @@ import android.support.annotation.NonNull;
 import java.util.UUID;
 
 public class ZIKDeviceId {
-    private final UUID uuid;
+    @NonNull private transient UUID uuid;
 
-    public ZIKDeviceId(@NonNull final UUID uuid) {
-        this.uuid = uuid;
-    }
+    @NonNull public UUID getUuid() { return this.uuid; }
+    @NonNull public String toString() { return this.uuid.toString(); }
 
-    public String toString() {
-        return this.uuid.toString();
+    public ZIKDeviceId(@NonNull final String uuidString) {
+        this.uuid = UUID.fromString(uuidString);
     }
 
     @Override
@@ -21,7 +20,7 @@ public class ZIKDeviceId {
     }
 
     @Override
-    public boolean equals(Object object) {
+    public boolean equals(final Object object) {
         if( object == this ) {
             return true;
         }
