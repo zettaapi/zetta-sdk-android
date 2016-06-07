@@ -7,8 +7,9 @@ import java.util.List;
 import java.util.Map;
 
 public class ZIKServer {
+    private static final String NAME = "name";
 
-    @NonNull  private final Map properties;
+    @NonNull  private final Map<String,Object> properties;
     @Nullable private final String name;
     @Nullable private final ZIKStyle style;
 
@@ -16,7 +17,7 @@ public class ZIKServer {
     @NonNull private final List<ZIKLink> links;
     @NonNull private final List<ZIKTransition> transitions;
 
-    @NonNull  public Map getProperties() { return this.properties; }
+    @NonNull  public Map<String,Object> getProperties() { return this.properties; }
     @Nullable public String getName() { return this.name; }
     @Nullable public ZIKStyle getStyle() { return this.style; }
 
@@ -24,13 +25,13 @@ public class ZIKServer {
     @NonNull public List<ZIKTransition> getTransitions() { return this.transitions; }
     @NonNull public List<ZIKDevice> getDevices() { return this.devices; }
 
-    public ZIKServer(@NonNull final Map properties, @NonNull final List<ZIKDevice> devices, @NonNull final List<ZIKLink> links, @NonNull final List<ZIKTransition> transitions, @Nullable final ZIKStyle style) {
+    public ZIKServer(@NonNull final Map<String,Object> properties, @NonNull final List<ZIKDevice> devices, @NonNull final List<ZIKLink> links, @NonNull final List<ZIKTransition> transitions, @Nullable final ZIKStyle style) {
         this.properties = properties;
         this.devices = devices;
         this.links = links;
         this.transitions = transitions;
         this.style = style;
-        Object nameObject = properties.get("name");
+        Object nameObject = properties.get(NAME);
         if( nameObject != null ) {
             this.name = nameObject.toString();
         } else {

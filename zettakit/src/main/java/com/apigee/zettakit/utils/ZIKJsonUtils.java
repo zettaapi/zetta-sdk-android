@@ -12,8 +12,6 @@ import com.apigee.zettakit.jsonHelpers.ZIKTransitionJsonAdapter;
 import com.squareup.moshi.JsonAdapter;
 import com.squareup.moshi.Moshi;
 
-import org.json.JSONObject;
-
 import java.io.IOException;
 import java.util.Map;
 
@@ -36,7 +34,7 @@ public final class ZIKJsonUtils {
 
     @Nullable
     public static <T> T createObjectFromJson(@NonNull final Class<T> objectClass, @NonNull final String jsonString) throws IOException {
-        return moshi.adapter(objectClass).fromJson(jsonString);
+        return ZIKJsonUtils.jsonAdapter(objectClass).fromJson(jsonString);
     }
 
     @Nullable
@@ -46,6 +44,6 @@ public final class ZIKJsonUtils {
 
     @NonNull
     public static String mapToJsonString(@NonNull final Map jsonMap) {
-        return new JSONObject(jsonMap).toString();
+        return ZIKJsonUtils.jsonAdapter(Map.class).toJson(jsonMap);
     }
 }

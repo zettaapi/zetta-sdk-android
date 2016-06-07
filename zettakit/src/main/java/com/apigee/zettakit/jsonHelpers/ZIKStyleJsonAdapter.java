@@ -6,19 +6,19 @@ import com.apigee.zettakit.ZIKStyle;
 import com.squareup.moshi.FromJson;
 import com.squareup.moshi.ToJson;
 
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.Map;
 
 public final class ZIKStyleJsonAdapter {
     @FromJson
     public ZIKStyle styleFromJson(@NonNull final ZIKStyleJson styleJson) {
-        Map properties = styleJson.properties;
+        Map<String,Object> properties = styleJson.properties;
         if( properties == null ) {
-            properties = new HashMap();
+            properties = Collections.emptyMap();
         }
-        Map actions = styleJson.actions;
+        Map<String,Object> actions = styleJson.actions;
         if( actions == null ) {
-            actions = new HashMap();
+            actions = Collections.emptyMap();
         }
         return new ZIKStyle(properties,actions);
     }

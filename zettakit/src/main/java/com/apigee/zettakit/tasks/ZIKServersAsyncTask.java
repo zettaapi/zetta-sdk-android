@@ -2,15 +2,14 @@ package com.apigee.zettakit.tasks;
 
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 
 import com.apigee.zettakit.ZIKLink;
 import com.apigee.zettakit.ZIKRoot;
 import com.apigee.zettakit.ZIKServer;
 import com.apigee.zettakit.ZIKSession;
+import com.apigee.zettakit.callbacks.ZIKServersCallback;
 import com.apigee.zettakit.utils.ZIKJsonUtils;
 import com.apigee.zettakit.utils.ZIKUtils;
-import com.apigee.zettakit.callbacks.ZIKServersCallback;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -20,10 +19,12 @@ import okhttp3.Request;
 import okhttp3.Response;
 
 public class ZIKServersAsyncTask extends AsyncTask<Void,Void,Void> {
+    private static final String SERVER = "server";
+
     @NonNull private final ZIKServersCallback serversCallback;
     @NonNull private final ZIKSession session;
     @NonNull private final ZIKRoot root;
-    @Nullable public List<ZIKServer> servers;
+    @NonNull private final ArrayList<ZIKServer> servers = new ArrayList<ZIKServer>();
 
     public ZIKServersAsyncTask(@NonNull final ZIKSession session, @NonNull final ZIKRoot root, @NonNull final ZIKServersCallback serversCallback) {
         this.session = session;
@@ -33,17 +34,16 @@ public class ZIKServersAsyncTask extends AsyncTask<Void,Void,Void> {
 
     @Override @NonNull
     protected Void doInBackground(final Void... v) {
-        final ArrayList<ZIKLink> serverLinks = new ArrayList<>();
+        final ArrayList<ZIKLink> serverLinks = new ArrayList<ZIKLink>();
         List<ZIKLink> rootLinks = root.getLinks();
         if( !rootLinks.isEmpty() ) {
-            String serverRel = ZIKUtils.generateRelForString("server");
+            String serverRel = ZIKUtils.generateRelForString(SERVER);
             for( ZIKLink rootLink : rootLinks ) {
                 if( rootLink.hasRel(serverRel)) {
                     serverLinks.add(rootLink);
                 }
             }
         }
-        ArrayList<ZIKServer> servers = new ArrayList<>();
         if( !serverLinks.isEmpty() ) {
             for( ZIKLink serverLink : serverLinks ) {
                 Request.Builder requestBuilder = new Request.Builder();
@@ -54,12 +54,11 @@ public class ZIKServersAsyncTask extends AsyncTask<Void,Void,Void> {
                     Response response = ZIKSession.httpClient.newCall(request).execute();
                     if( response.isSuccessful() ) {
                         ZIKServer server = ZIKJsonUtils.createObjectFromJson(ZIKServer.class,response.body().string());
-                        servers.add(server);
+                        this.servers.add(server);
                     }
                 } catch( IOException ignored ) { }
             }
         }
-        this.servers = servers;
         return null;
     }
 

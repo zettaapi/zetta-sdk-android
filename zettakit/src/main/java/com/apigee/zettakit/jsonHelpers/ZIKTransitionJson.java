@@ -8,5 +8,5 @@ public final class ZIKTransitionJson {
     String name;
     String method;
     String type;
-    List<Map> fields;
+    List<Map<String,Object>> fields;
 }

@@ -21,14 +21,14 @@ public class ZIKSession {
 
     @Nullable private static Context appContext;
 
-    @NonNull public static OkHttpClient httpClient = new OkHttpClient();
-    @NonNull private static ZIKSession sharedSession = new ZIKSession();
+    @NonNull public static final OkHttpClient httpClient = new OkHttpClient();
+    @NonNull private static final ZIKSession sharedSession = new ZIKSession();
 
     @NonNull public static ZIKSession getSharedSession() {
         return ZIKSession.sharedSession;
     }
 
-    @NonNull private HashMap<String,Object> headers = new HashMap<>();
+    @NonNull private HashMap<String,Object> headers = new HashMap<String,Object>();
 
     public static void init(@NonNull final Context context) {
         ZIKSession.appContext = context.getApplicationContext();

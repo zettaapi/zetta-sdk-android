@@ -11,28 +11,29 @@ import com.squareup.moshi.FromJson;
 import com.squareup.moshi.ToJson;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
 public final class ZIKDeviceJsonAdapter {
+    private static final String STYLE = "style";
+
     @FromJson
     public ZIKDevice deviceFromJson(@NonNull final ZIKDeviceJson deviceJson) {
-        Map propertiesMap = deviceJson.properties;
+        Map<String,Object> propertiesMap = deviceJson.properties;
         if( propertiesMap == null ) {
-            propertiesMap = new HashMap();
+            propertiesMap = Collections.emptyMap();
         }
         List<ZIKLink> links = deviceJson.links;
         if( links == null ) {
-            links = new ArrayList<>();
+            links = Collections.emptyList();
         }
         List<ZIKTransition> actions = deviceJson.actions;
         if( actions == null ) {
-            actions = new ArrayList<>();
+            actions = Collections.emptyList();
         }
         ZIKStyle style = null;
-        Object styleObject = propertiesMap.get("style");
+        Object styleObject = propertiesMap.get(STYLE);
         if( styleObject != null && styleObject instanceof Map ) {
             try {
                 style = ZIKJsonUtils.convertJsonMapToObject(ZIKStyle.class,(Map)styleObject);

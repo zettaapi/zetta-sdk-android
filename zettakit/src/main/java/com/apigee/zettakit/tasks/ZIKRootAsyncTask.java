@@ -16,11 +16,11 @@ import okhttp3.Response;
 
 public class ZIKRootAsyncTask extends AsyncTask<Void,Void,Void> {
     @NonNull private final ZIKRootCallback rootCallback;
-    @NonNull public final ZIKSession session;
-    @NonNull public final String rootUrl;
+    @NonNull private final ZIKSession session;
+    @NonNull private final String rootUrl;
 
-    @Nullable public ZIKRoot root;
-    @Nullable public IOException exception;
+    @Nullable private ZIKRoot root;
+    @Nullable private IOException exception;
 
     public ZIKRootAsyncTask(@NonNull final ZIKSession session, @NonNull final String rootUrl, @NonNull final ZIKRootCallback rootCallback) {
         this.session = session;

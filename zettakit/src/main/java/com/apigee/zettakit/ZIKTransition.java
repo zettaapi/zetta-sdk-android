@@ -12,19 +12,19 @@ public class ZIKTransition {
     @NonNull private final String name;
     @NonNull private final String method;
     @NonNull private final String type;
-    @NonNull private final List<Map> fields;
+    @NonNull private final List<Map<String,Object>> fields;
 
     @NonNull public String getHref() { return this.href; }
     @NonNull public String getName() { return this.name; }
     @NonNull public String getMethod() { return this.method; }
-    @NonNull public List<Map> getFields() { return this.fields; }
+    @NonNull public List<Map<String,Object>> getFields() { return this.fields; }
     @NonNull public String getType() { return this.type; }
 
     public ZIKTransition(@NonNull final String href,
                          @NonNull final String name,
                          @NonNull final String method,
                          @NonNull final String type,
-                         @NonNull final List<Map> fields) {
+                         @NonNull final List<Map<String,Object>> fields) {
         this.href = href;
         this.name = name;
         this.method = method;

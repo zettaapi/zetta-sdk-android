@@ -6,6 +6,8 @@ import android.support.annotation.Nullable;
 import java.util.List;
 
 public class ZIKLink {
+    private static final String SELF = "self";
+
     @NonNull private final String href;
     @Nullable private final String title;
     @Nullable private final List<String> rel;
@@ -33,6 +35,6 @@ public class ZIKLink {
     }
 
     public boolean isSelf() {
-        return this.hasRel("self");
+        return this.hasRel(SELF);
     }
 }

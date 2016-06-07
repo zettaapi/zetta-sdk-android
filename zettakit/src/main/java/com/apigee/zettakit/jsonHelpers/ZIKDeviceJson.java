@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 public final class ZIKDeviceJson {
-    Map properties;
+    Map<String,Object> properties;
     List<ZIKLink> links;
     List<ZIKTransition> actions;
 }

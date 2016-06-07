@@ -2,7 +2,6 @@ package com.apigee.zettakit.tasks;
 
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 
 import com.apigee.zettakit.ZIKDevice;
 import com.apigee.zettakit.ZIKLink;
@@ -20,9 +19,9 @@ import okhttp3.Response;
 
 public class ZIKDevicesAsyncTask extends AsyncTask<Void,Void,Void> {
     @NonNull private final ZIKDevicesCallback devicesCallback;
-    @NonNull public final ZIKSession session;
-    @NonNull public final ZIKServer server;
-    @Nullable public List<ZIKDevice> devices;
+    @NonNull private final ZIKSession session;
+    @NonNull private final ZIKServer server;
+    @NonNull private final ArrayList<ZIKDevice> devices = new ArrayList<ZIKDevice>();
 
     public ZIKDevicesAsyncTask(@NonNull final ZIKSession session, @NonNull final ZIKServer server, @NonNull final ZIKDevicesCallback devicesCallback) {
         this.session = session;
@@ -32,7 +31,7 @@ public class ZIKDevicesAsyncTask extends AsyncTask<Void,Void,Void> {
 
     @Override @NonNull
     protected Void doInBackground(final Void... v) {
-        final ArrayList<ZIKLink> devicesLinks = new ArrayList<>();
+        final ArrayList<ZIKLink> devicesLinks = new ArrayList<ZIKLink>();
         List<ZIKDevice> serverDevices = server.getDevices();
         if( !serverDevices.isEmpty() ) {
             for( ZIKDevice device : serverDevices ) {
@@ -47,7 +46,6 @@ public class ZIKDevicesAsyncTask extends AsyncTask<Void,Void,Void> {
             }
         }
         if( !devicesLinks.isEmpty() ) {
-            ArrayList<ZIKDevice> loadedDevices = new ArrayList<>();
             for( ZIKLink deviceLink : devicesLinks ) {
                 Request.Builder requestBuilder = new Request.Builder();
                 requestBuilder.url(deviceLink.getHref());
@@ -57,11 +55,10 @@ public class ZIKDevicesAsyncTask extends AsyncTask<Void,Void,Void> {
                     Response response = ZIKSession.httpClient.newCall(request).execute();
                     if( response.isSuccessful() ) {
                         ZIKDevice device = ZIKJsonUtils.createObjectFromJson(ZIKDevice.class,response.body().string());
-                        loadedDevices.add(device);
+                        this.devices.add(device);
                     }
                 } catch( IOException ignored ) { }
             }
-            this.devices = loadedDevices;
         }
         return null;
     }

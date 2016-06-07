@@ -7,5 +7,5 @@ import java.util.Map;
 
 public final class ZIKRootJson {
     List<ZIKLink> links;
-    List<Map> actions;
+    List<Map<String,Object>> actions;
 }

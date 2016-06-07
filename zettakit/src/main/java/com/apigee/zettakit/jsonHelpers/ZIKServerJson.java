@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 public final class ZIKServerJson {
-    Map properties;
+    Map<String,Object> properties;
     List<ZIKDevice> entities;
     List<ZIKLink> links;
     List<ZIKTransition> actions;

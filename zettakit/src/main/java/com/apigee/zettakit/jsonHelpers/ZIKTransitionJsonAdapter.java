@@ -6,11 +6,13 @@ import com.apigee.zettakit.ZIKTransition;
 import com.squareup.moshi.FromJson;
 import com.squareup.moshi.ToJson;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
 public final class ZIKTransitionJsonAdapter {
+    private static final String DEFAULT_TYPE = "application/x-www-form-urlencoded";
+
     @FromJson
     public ZIKTransition transitionFromJson(@NonNull final ZIKTransitionJson transitionJson) {
         String href = transitionJson.href;
@@ -27,11 +29,11 @@ public final class ZIKTransitionJsonAdapter {
         }
         String type = transitionJson.type;
         if( type == null ) {
-            type = "application/x-www-form-urlencoded";
+            type = DEFAULT_TYPE;
         }
-        List<Map> fields = transitionJson.fields;
+        List<Map<String,Object>> fields = transitionJson.fields;
         if( fields == null ) {
-            fields = new ArrayList<>();
+            fields = Collections.emptyList();
         }
         return new ZIKTransition(href,name,method,type,fields);
     }

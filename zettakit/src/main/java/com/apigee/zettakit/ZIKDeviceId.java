@@ -5,7 +5,7 @@ import android.support.annotation.NonNull;
 import java.util.UUID;
 
 public class ZIKDeviceId {
-    @NonNull private transient UUID uuid;
+    @NonNull private transient final UUID uuid;
 
     @NonNull public UUID getUuid() { return this.uuid; }
     @NonNull public String toString() { return this.uuid.toString(); }
