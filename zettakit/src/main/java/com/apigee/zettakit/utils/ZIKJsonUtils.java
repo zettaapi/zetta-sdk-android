@@ -1,7 +1,6 @@
 package com.apigee.zettakit.utils;
 
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 
 import com.apigee.zettakit.jsonHelpers.ZIKDeviceJsonAdapter;
 import com.apigee.zettakit.jsonHelpers.ZIKLinkJsonAdapter;
@@ -32,12 +31,12 @@ public final class ZIKJsonUtils {
         return moshi.adapter(objectClass);
     }
 
-    @Nullable
+    @NonNull
     public static <T> T createObjectFromJson(@NonNull final Class<T> objectClass, @NonNull final String jsonString) throws IOException {
         return ZIKJsonUtils.jsonAdapter(objectClass).fromJson(jsonString);
     }
 
-    @Nullable
+    @NonNull
     public static <T> T convertJsonMapToObject(@NonNull final Class<T> objectClass, @NonNull final Map jsonMap) throws IOException {
         return ZIKJsonUtils.createObjectFromJson(objectClass,ZIKJsonUtils.mapToJsonString(jsonMap));
     }

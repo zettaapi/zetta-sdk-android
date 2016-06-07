@@ -4,8 +4,10 @@ import android.support.annotation.NonNull;
 
 import com.apigee.zettakit.ZIKDevice;
 
+import java.io.IOException;
 import java.util.List;
 
 public interface ZIKDevicesCallback {
-    void onFinished(@NonNull final List<ZIKDevice> devices);
+    void onSuccess(@NonNull final List<ZIKDevice> devices);
+    void onFailure(@NonNull final IOException exception);
 }

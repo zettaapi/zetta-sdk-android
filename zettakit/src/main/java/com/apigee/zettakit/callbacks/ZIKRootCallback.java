@@ -4,7 +4,9 @@ import android.support.annotation.NonNull;
 
 import com.apigee.zettakit.ZIKRoot;
 
+import java.io.IOException;
+
 public interface ZIKRootCallback {
     void onSuccess(@NonNull final ZIKRoot root);
-    void onError(@NonNull final String error);
+    void onFailure(@NonNull final IOException exception);
 }

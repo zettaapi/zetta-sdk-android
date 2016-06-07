@@ -19,9 +19,9 @@ public class ZIKDevice {
     @NonNull  private final String type;
     @Nullable private final String name;
     @Nullable private final String state;
+    @Nullable private final ZIKStyle style;
 
     @NonNull  private final Map<String,Object> properties;
-    @Nullable private final ZIKStyle style;
     @NonNull  private final List<ZIKLink> links;
     @NonNull  private final List<ZIKLink> streamLinks;
     @NonNull  private final List<ZIKTransition> transitions;
