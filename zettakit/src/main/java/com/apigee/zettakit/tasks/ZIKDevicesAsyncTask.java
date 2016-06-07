@@ -2,6 +2,7 @@ package com.apigee.zettakit.tasks;
 
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import com.apigee.zettakit.ZIKDevice;
 import com.apigee.zettakit.ZIKLink;
@@ -12,16 +13,16 @@ import com.apigee.zettakit.utils.ZIKJsonUtils;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import okhttp3.Request;
 import okhttp3.Response;
 
-public class ZIKDevicesAsyncTask extends AsyncTask<Void,Void,Void> {
+public class ZIKDevicesAsyncTask extends AsyncTask<Void,Void,List<ZIKDevice>> {
     @NonNull private final ZIKDevicesCallback devicesCallback;
     @NonNull private final ZIKSession session;
     @NonNull private final ZIKServer server;
-    @NonNull private final ArrayList<ZIKDevice> devices = new ArrayList<ZIKDevice>();
 
     public ZIKDevicesAsyncTask(@NonNull final ZIKSession session, @NonNull final ZIKServer server, @NonNull final ZIKDevicesCallback devicesCallback) {
         this.session = session;
@@ -29,42 +30,38 @@ public class ZIKDevicesAsyncTask extends AsyncTask<Void,Void,Void> {
         this.devicesCallback = devicesCallback;
     }
 
-    @Override @NonNull
-    protected Void doInBackground(final Void... v) {
-        final ArrayList<ZIKLink> devicesLinks = new ArrayList<ZIKLink>();
+    @Override @Nullable
+    protected List<ZIKDevice> doInBackground(final Void... v) {
+        ArrayList<ZIKDevice> loadedDevices = null;
         List<ZIKDevice> serverDevices = server.getDevices();
-        if( !serverDevices.isEmpty() ) {
-            for( ZIKDevice device : serverDevices ) {
-                List<ZIKLink> deviceLinks = device.getLinks();
-                if( !deviceLinks.isEmpty() ) {
-                    for( ZIKLink deviceLink : deviceLinks ) {
-                        if( deviceLink.isSelf() ) {
-                            devicesLinks.add(deviceLink);
-                        }
+        if( ! serverDevices.isEmpty() ) {
+            loadedDevices = new ArrayList<>();
+            for( ZIKDevice serverDevice : serverDevices ) {
+                for( ZIKLink deviceLink : serverDevice.getLinks() ) {
+                    if( deviceLink.isSelf() ) {
+                        Request.Builder requestBuilder = new Request.Builder();
+                        requestBuilder.url(deviceLink.getHref());
+                        session.addHeadersToRequest(requestBuilder);
+                        Request request = requestBuilder.get().build();
+                        try {
+                            Response response = ZIKSession.httpClient.newCall(request).execute();
+                            if( response.isSuccessful() ) {
+                                loadedDevices.add(ZIKJsonUtils.createObjectFromJson(ZIKDevice.class,response.body().string()));
+                            }
+                        } catch( IOException ignored ) { }
                     }
                 }
             }
         }
-        if( !devicesLinks.isEmpty() ) {
-            for( ZIKLink deviceLink : devicesLinks ) {
-                Request.Builder requestBuilder = new Request.Builder();
-                requestBuilder.url(deviceLink.getHref());
-                session.addHeadersToRequest(requestBuilder);
-                Request request = requestBuilder.get().build();
-                try {
-                    Response response = ZIKSession.httpClient.newCall(request).execute();
-                    if( response.isSuccessful() ) {
-                        ZIKDevice device = ZIKJsonUtils.createObjectFromJson(ZIKDevice.class,response.body().string());
-                        this.devices.add(device);
-                    }
-                } catch( IOException ignored ) { }
-            }
-        }
-        return null;
+        return loadedDevices;
     }
 
     @Override
-    protected void onPostExecute(@NonNull final Void aVoid) {
-        devicesCallback.onFinished(devices);
+    protected void onPostExecute(@Nullable final List<ZIKDevice> devices) {
+        List<ZIKDevice> loadedDevices = devices;
+        if( loadedDevices == null ) {
+            loadedDevices = Collections.emptyList();
+        }
+        devicesCallback.onFinished(loadedDevices);
     }
 }
