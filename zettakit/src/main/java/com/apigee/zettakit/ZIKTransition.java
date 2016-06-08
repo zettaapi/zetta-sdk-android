@@ -74,7 +74,7 @@ public class ZIKTransition implements Parcelable {
     }
 
     @Override
-    public void writeToParcel(Parcel dest, int flags) {
+    public void writeToParcel(@NonNull final Parcel dest, final int flags) {
         dest.writeString(this.href);
         dest.writeString(this.name);
         dest.writeString(this.method);
@@ -83,7 +83,7 @@ public class ZIKTransition implements Parcelable {
     }
 
     @SuppressWarnings("unchecked")
-    protected ZIKTransition(Parcel in) {
+    protected ZIKTransition(@NonNull final Parcel in) {
         this.href = in.readString();
         this.name = in.readString();
         this.method = in.readString();

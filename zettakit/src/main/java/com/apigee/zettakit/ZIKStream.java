@@ -1,9 +1,11 @@
 package com.apigee.zettakit;
 
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
-import com.apigee.zettakit.listeners.ZIKStreamListener;
+import com.apigee.zettakit.interfaces.ZIKStreamListener;
 import com.apigee.zettakit.utils.ZIKJsonUtils;
 
 import java.io.IOException;
@@ -18,7 +20,7 @@ import okhttp3.ws.WebSocketCall;
 import okhttp3.ws.WebSocketListener;
 import okio.Buffer;
 
-public class ZIKStream {
+public class ZIKStream implements Parcelable {
     private enum ZIKStreamState { OPEN, OPENING, CLOSED }
 
     private boolean pingWhileOpen = true;
@@ -79,7 +81,7 @@ public class ZIKStream {
             try {
                 this.cancelPingTimer();
                 webSocket.close(1000,"");
-            } catch ( Exception closeException ) { }
+            } catch ( Exception ignored ) { }
         }
     }
 
@@ -87,8 +89,8 @@ public class ZIKStream {
         if( webSocket == null && this.streamState == ZIKStreamState.CLOSED ) {
             ZIKStream.this.streamState = ZIKStreamState.OPENING;
 
-            final Request request = new Request.Builder().url(link.getHref()).build();
-            WebSocketCall webSocketCall = WebSocketCall.create(ZIKSession.httpClient, request);
+            final Request request = ZIKSession.getSharedSession().requestBuilderWithURL(link.getHref()).build();
+            final WebSocketCall webSocketCall = WebSocketCall.create(ZIKSession.httpClient, request);
             webSocketCall.enqueue(new WebSocketListener() {
 
                 @Override
@@ -149,4 +151,32 @@ public class ZIKStream {
             });
         }
     }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(@NonNull final Parcel dest, final int flags) {
+        dest.writeByte(this.pingWhileOpen ? (byte) 1 : (byte) 0);
+        dest.writeParcelable(this.link, flags);
+    }
+
+    protected ZIKStream(final Parcel in) {
+        this.pingWhileOpen = in.readByte() != 0;
+        this.link = in.readParcelable(ZIKLink.class.getClassLoader());
+        this.streamState = ZIKStreamState.CLOSED;
+    }
+
+    public static final Parcelable.Creator<ZIKStream> CREATOR = new Parcelable.Creator<ZIKStream>() {
+        @Override
+        public ZIKStream createFromParcel(Parcel source) {
+            return new ZIKStream(source);
+        }
+        @Override
+        public ZIKStream[] newArray(int size) {
+            return new ZIKStream[size];
+        }
+    };
 }

@@ -7,20 +7,20 @@ import android.support.annotation.Nullable;
 import com.apigee.zettakit.ZIKLink;
 import com.apigee.zettakit.ZIKRoot;
 import com.apigee.zettakit.ZIKSession;
-import com.apigee.zettakit.callbacks.ZIKRootCallback;
+import com.apigee.zettakit.interfaces.ZIKCallback;
 
 import java.util.Collections;
 import java.util.Map;
 
-public class ZIKRootAsyncTask extends AsyncTask<Void,Void,Void> {
-    @NonNull private final ZIKRootCallback rootCallback;
+public final class ZIKRootAsyncTask extends AsyncTask<Void,Void,Void> {
+    @NonNull private final ZIKCallback<ZIKRoot> rootCallback;
     @NonNull private final ZIKSession session;
     @NonNull private final String rootUrl;
 
     @Nullable private ZIKRoot root;
     @Nullable private Exception exception;
 
-    public ZIKRootAsyncTask(@NonNull final ZIKSession session, @NonNull final String rootUrl, @NonNull final ZIKRootCallback rootCallback) {
+    public ZIKRootAsyncTask(@NonNull final ZIKSession session, @NonNull final String rootUrl, @NonNull final ZIKCallback<ZIKRoot> rootCallback) {
         this.session = session;
         this.rootUrl = rootUrl;
         this.rootCallback = rootCallback;
@@ -28,7 +28,7 @@ public class ZIKRootAsyncTask extends AsyncTask<Void,Void,Void> {
 
     @Override @NonNull
     protected Void doInBackground(final Void... v) {
-        session.getRootSync(this.rootUrl, new ZIKRootCallback() {
+        session.getRootSync(this.rootUrl, new ZIKCallback<ZIKRoot>() {
             @Override
             public void onSuccess(@NonNull ZIKRoot root) {
                 ZIKRootAsyncTask.this.root = root;

@@ -48,7 +48,7 @@ public class ZIKStyle implements Parcelable {
     }
 
     @Override
-    public void writeToParcel(Parcel dest, int flags) {
+    public void writeToParcel(@NonNull final Parcel dest, final int flags) {
         dest.writeString(ZIKJsonUtils.mapToJsonString(this.properties));
         dest.writeString(ZIKJsonUtils.mapToJsonString(this.actions));
         dest.writeParcelable(this.backgroundColor, flags);
@@ -56,7 +56,7 @@ public class ZIKStyle implements Parcelable {
     }
 
     @SuppressWarnings("unchecked")
-    protected ZIKStyle(Parcel in) {
+    protected ZIKStyle(@NonNull final Parcel in) {
         Map<String,Object> properties = new HashMap<>();
         Map<String,Object> actions = new HashMap<>();
         try {

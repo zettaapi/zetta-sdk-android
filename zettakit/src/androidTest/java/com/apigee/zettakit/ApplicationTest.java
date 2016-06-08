@@ -5,11 +5,8 @@ import android.os.Parcel;
 import android.support.annotation.NonNull;
 import android.test.ApplicationTestCase;
 
-import com.apigee.zettakit.callbacks.ZIKDeviceCallback;
-import com.apigee.zettakit.callbacks.ZIKDevicesCallback;
-import com.apigee.zettakit.callbacks.ZIKRootCallback;
-import com.apigee.zettakit.callbacks.ZIKServersCallback;
-import com.apigee.zettakit.listeners.ZIKStreamListener;
+import com.apigee.zettakit.interfaces.ZIKCallback;
+import com.apigee.zettakit.interfaces.ZIKStreamListener;
 
 import java.io.IOException;
 import java.util.List;
@@ -30,15 +27,15 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
         final CountDownLatch signal = new CountDownLatch(1);
         ZIKSession.init(this.getContext());
         final ZIKSession sharedSession = ZIKSession.getSharedSession();
-        sharedSession.getRootAsync("http://stage.zettaapi.org", new ZIKRootCallback() {
+        sharedSession.getRootAsync("http://stage.zettaapi.org", new ZIKCallback<ZIKRoot>() {
             @Override
             public void onSuccess(@NonNull ZIKRoot root) {
-                sharedSession.getServersAsync(root, new ZIKServersCallback() {
+                sharedSession.getServersAsync(root, new ZIKCallback<List<ZIKServer>>() {
                     @Override
                     public void onSuccess(@NonNull List<ZIKServer> servers) {
                         if (!servers.isEmpty()) {
                             ZIKServer server = servers.get(1);
-                            sharedSession.getDevicesAsync(server, new ZIKDevicesCallback() {
+                            sharedSession.getDevicesAsync(server, new ZIKCallback<List<ZIKDevice>>() {
                                 @Override
                                 public void onSuccess(@NonNull List<ZIKDevice> devices) {
                                     signal.countDown();
@@ -71,17 +68,17 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
         final CountDownLatch signal = new CountDownLatch(1);
         ZIKSession.init(this.getContext());
         final ZIKSession sharedSession = ZIKSession.getSharedSession();
-        sharedSession.getRootAsync("http://stage.zettaapi.org", new ZIKRootCallback() {
+        sharedSession.getRootAsync("http://stage.zettaapi.org", new ZIKCallback<ZIKRoot>() {
             @Override
             public void onSuccess(@NonNull ZIKRoot root) {
-                sharedSession.getServersAsync(root, new ZIKServersCallback() {
+                sharedSession.getServersAsync(root, new ZIKCallback<List<ZIKServer>>() {
                     @Override
                     public void onSuccess(@NonNull List<ZIKServer> servers) {
                         if (!servers.isEmpty()) {
                             ZIKServer server = servers.get(1);
                             ZIKDevice device = server.getDeviceNamed("Thermometer");
                             if( device != null ) {
-                                device.fetchAsync(new ZIKDeviceCallback() {
+                                device.fetchAsync(new ZIKCallback<ZIKDevice>() {
                                     @Override
                                     public void onSuccess(@NonNull ZIKDevice device) {
                                         final ZIKStream stream = device.stream("temperature");
@@ -144,7 +141,7 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
         final CountDownLatch signal = new CountDownLatch(1);
         ZIKSession.init(this.getContext());
         final ZIKSession sharedSession = ZIKSession.getSharedSession();
-        sharedSession.getRootAsync("http://stage.zettaapi.org", new ZIKRootCallback() {
+        sharedSession.getRootAsync("http://stage.zettaapi.org", new ZIKCallback<ZIKRoot>() {
             @Override
             public void onSuccess(@NonNull ZIKRoot root) {
                 Parcel parcel = Parcel.obtain();
@@ -167,10 +164,10 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
         final CountDownLatch signal = new CountDownLatch(1);
         ZIKSession.init(this.getContext());
         final ZIKSession sharedSession = ZIKSession.getSharedSession();
-        sharedSession.getRootAsync("http://stage.zettaapi.org", new ZIKRootCallback() {
+        sharedSession.getRootAsync("http://stage.zettaapi.org", new ZIKCallback<ZIKRoot>() {
             @Override
             public void onSuccess(@NonNull ZIKRoot root) {
-                sharedSession.getServersAsync(root, new ZIKServersCallback() {
+                sharedSession.getServersAsync(root, new ZIKCallback<List<ZIKServer>>() {
                     @Override
                     public void onSuccess(@NonNull List<ZIKServer> servers) {
                         if (!servers.isEmpty()) {
@@ -205,15 +202,15 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
         final CountDownLatch signal = new CountDownLatch(1);
         ZIKSession.init(this.getContext());
         final ZIKSession sharedSession = ZIKSession.getSharedSession();
-        sharedSession.getRootAsync("http://stage.zettaapi.org", new ZIKRootCallback() {
+        sharedSession.getRootAsync("http://stage.zettaapi.org", new ZIKCallback<ZIKRoot>() {
             @Override
             public void onSuccess(@NonNull ZIKRoot root) {
-                sharedSession.getServersAsync(root, new ZIKServersCallback() {
+                sharedSession.getServersAsync(root, new ZIKCallback<List<ZIKServer>>() {
                     @Override
                     public void onSuccess(@NonNull List<ZIKServer> servers) {
                         if (!servers.isEmpty()) {
                             ZIKServer server = servers.get(1);
-                            sharedSession.getDevicesAsync(server, new ZIKDevicesCallback() {
+                            sharedSession.getDevicesAsync(server, new ZIKCallback<List<ZIKDevice>>() {
                                 @Override
                                 public void onSuccess(@NonNull List<ZIKDevice> devices) {
                                     for( ZIKDevice device : devices ) {

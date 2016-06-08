@@ -44,13 +44,13 @@ public class ZIKLink implements Parcelable {
     }
 
     @Override
-    public void writeToParcel(Parcel dest, int flags) {
+    public void writeToParcel(@NonNull final Parcel dest, final int flags) {
         dest.writeString(this.href);
         dest.writeString(this.title);
         dest.writeStringList(this.rel);
     }
 
-    protected ZIKLink(Parcel in) {
+    protected ZIKLink(@NonNull final Parcel in) {
         this.href = in.readString();
         this.title = in.readString();
         this.rel = in.createStringArrayList();

@@ -4,15 +4,12 @@ import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
-import com.apigee.zettakit.callbacks.ZIKDevicesCallback;
-import com.apigee.zettakit.callbacks.ZIKRootCallback;
-import com.apigee.zettakit.callbacks.ZIKServersCallback;
+import com.apigee.zettakit.interfaces.ZIKCallback;
 import com.apigee.zettakit.tasks.ZIKDevicesAsyncTask;
 import com.apigee.zettakit.tasks.ZIKRootAsyncTask;
 import com.apigee.zettakit.tasks.ZIKServersAsyncTask;
 import com.apigee.zettakit.utils.ZIKJsonUtils;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -42,11 +39,11 @@ public class ZIKSession {
 
     }
 
-    public void getRootAsync(@NonNull final String url, @NonNull final ZIKRootCallback rootCallback) {
+    public void getRootAsync(@NonNull final String url, @NonNull final ZIKCallback<ZIKRoot> rootCallback) {
         new ZIKRootAsyncTask(this,url,rootCallback).execute();
     }
 
-    public void getRootSync(@NonNull final String url, @NonNull final ZIKRootCallback rootCallback) {
+    public void getRootSync(@NonNull final String url, @NonNull final ZIKCallback<ZIKRoot> rootCallback) {
         Request request = this.requestBuilderWithURL(url).get().build();
         try {
             Response response = ZIKSession.httpClient.newCall(request).execute();
@@ -58,11 +55,11 @@ public class ZIKSession {
         }
     }
 
-    public void getServersAsync(@NonNull final ZIKRoot root, @NonNull final ZIKServersCallback serversCallback) {
+    public void getServersAsync(@NonNull final ZIKRoot root, @NonNull final ZIKCallback<List<ZIKServer>> serversCallback) {
         new ZIKServersAsyncTask(this,root,serversCallback).execute();
     }
 
-    public void getServersSync(@NonNull final ZIKRoot root, @NonNull final ZIKServersCallback serversCallback) {
+    public void getServersSync(@NonNull final ZIKRoot root, @NonNull final ZIKCallback<List<ZIKServer>> serversCallback) {
         List<ZIKServer> servers = null;
         final List<ZIKLink> serverLinks = root.getAllServerLinks();
         if( !serverLinks.isEmpty() ) {
@@ -87,11 +84,11 @@ public class ZIKSession {
         serversCallback.onSuccess(servers);
     }
 
-    public void getDevicesAsync(@NonNull final ZIKServer server, @NonNull final ZIKDevicesCallback devicesCallback) {
+    public void getDevicesAsync(@NonNull final ZIKServer server, @NonNull final ZIKCallback<List<ZIKDevice>> devicesCallback) {
         new ZIKDevicesAsyncTask(this,server,devicesCallback).execute();
     }
 
-    public void getDevicesSync(@NonNull final ZIKServer server, @NonNull final ZIKDevicesCallback devicesCallback) {
+    public void getDevicesSync(@NonNull final ZIKServer server, @NonNull final ZIKCallback<List<ZIKDevice>> devicesCallback) {
         List<ZIKDevice> devices = null;
         List<ZIKDevice> serverDevices = server.getDevices();
         if( ! serverDevices.isEmpty() ) {

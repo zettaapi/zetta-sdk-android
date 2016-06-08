@@ -6,19 +6,19 @@ import android.support.annotation.Nullable;
 
 import com.apigee.zettakit.ZIKDevice;
 import com.apigee.zettakit.ZIKSession;
-import com.apigee.zettakit.callbacks.ZIKDeviceCallback;
+import com.apigee.zettakit.interfaces.ZIKCallback;
 
 import java.io.IOException;
 
-public class ZIKDeviceAsyncTask extends AsyncTask<Void,Void,Void> {
-    @NonNull private final ZIKDeviceCallback deviceCallback;
+public final class ZIKDeviceAsyncTask extends AsyncTask<Void,Void,Void> {
+    @NonNull private final ZIKCallback<ZIKDevice> deviceCallback;
     @NonNull private final ZIKSession session;
     @NonNull private final ZIKDevice deviceToLoad;
 
     @Nullable private ZIKDevice loadedDevice;
     @Nullable private Exception exception;
 
-    public ZIKDeviceAsyncTask(@NonNull final ZIKSession session, @NonNull final ZIKDevice deviceToLoad, @NonNull final ZIKDeviceCallback deviceCallback) {
+    public ZIKDeviceAsyncTask(@NonNull final ZIKSession session, @NonNull final ZIKDevice deviceToLoad, @NonNull final ZIKCallback<ZIKDevice> deviceCallback) {
         this.session = session;
         this.deviceToLoad = deviceToLoad;
         this.deviceCallback = deviceCallback;
@@ -26,7 +26,7 @@ public class ZIKDeviceAsyncTask extends AsyncTask<Void,Void,Void> {
 
     @Override
     protected Void doInBackground(final Void... v) {
-        deviceToLoad.fetchSync(session, new ZIKDeviceCallback() {
+        deviceToLoad.fetchSync(session, new ZIKCallback<ZIKDevice>() {
             @Override
             public void onSuccess(@NonNull final ZIKDevice device) {
                 ZIKDeviceAsyncTask.this.loadedDevice = device;
@@ -40,7 +40,7 @@ public class ZIKDeviceAsyncTask extends AsyncTask<Void,Void,Void> {
     }
 
     @Override
-    protected void onPostExecute(Void aVoid) {
+    protected void onPostExecute(final Void aVoid) {
         if( exception != null ) {
             deviceCallback.onFailure(exception);
         } else if( loadedDevice != null ) {

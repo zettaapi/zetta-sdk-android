@@ -7,20 +7,20 @@ import android.support.annotation.Nullable;
 import com.apigee.zettakit.ZIKRoot;
 import com.apigee.zettakit.ZIKServer;
 import com.apigee.zettakit.ZIKSession;
-import com.apigee.zettakit.callbacks.ZIKServersCallback;
+import com.apigee.zettakit.interfaces.ZIKCallback;
 
 import java.util.Collections;
 import java.util.List;
 
-public class ZIKServersAsyncTask extends AsyncTask<Void,Void,Void> {
-    @NonNull private final ZIKServersCallback serversCallback;
+public final class ZIKServersAsyncTask extends AsyncTask<Void,Void,Void> {
+    @NonNull private final ZIKCallback<List<ZIKServer>> serversCallback;
     @NonNull private final ZIKSession session;
     @NonNull private final ZIKRoot root;
 
     @Nullable private List<ZIKServer> servers;
     @Nullable private Exception exception;
 
-    public ZIKServersAsyncTask(@NonNull final ZIKSession session, @NonNull final ZIKRoot root, @NonNull final ZIKServersCallback serversCallback) {
+    public ZIKServersAsyncTask(@NonNull final ZIKSession session, @NonNull final ZIKRoot root, @NonNull final ZIKCallback<List<ZIKServer>> serversCallback) {
         this.session = session;
         this.root = root;
         this.serversCallback = serversCallback;
@@ -28,7 +28,7 @@ public class ZIKServersAsyncTask extends AsyncTask<Void,Void,Void> {
 
     @Override @Nullable
     protected Void doInBackground(final Void... v) {
-        session.getServersSync(this.root, new ZIKServersCallback() {
+        session.getServersSync(this.root, new ZIKCallback<List<ZIKServer>>() {
             @Override
             public void onSuccess(@NonNull List<ZIKServer> servers) {
                 ZIKServersAsyncTask.this.servers = servers;

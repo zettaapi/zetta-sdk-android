@@ -5,7 +5,7 @@ import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
-import com.apigee.zettakit.callbacks.ZIKDeviceCallback;
+import com.apigee.zettakit.interfaces.ZIKCallback;
 import com.apigee.zettakit.tasks.ZIKDeviceAsyncTask;
 import com.apigee.zettakit.utils.ZIKJsonUtils;
 
@@ -83,11 +83,11 @@ public class ZIKDevice implements Parcelable {
         }
     }
 
-    public void transition(@NonNull final String transitionName, @NonNull final ZIKDeviceCallback deviceCallback) {
+    public void transition(@NonNull final String transitionName, @NonNull final ZIKCallback<ZIKDevice> deviceCallback) {
         this.transition(transitionName,new HashMap<String, Object>(),deviceCallback);
     }
 
-    public void transition(@NonNull final String transitionName, @NonNull final Map<String,Object> arguments, @NonNull final ZIKDeviceCallback deviceCallback) {
+    public void transition(@NonNull final String transitionName, @NonNull final Map<String,Object> arguments, @NonNull final ZIKCallback<ZIKDevice> deviceCallback) {
         ZIKTransition transition = null;
         for( ZIKTransition deviceTransition : this.getTransitions() ) {
             if( deviceTransition.getName().equalsIgnoreCase(transitionName) ) {
@@ -102,7 +102,7 @@ public class ZIKDevice implements Parcelable {
         }
     }
 
-    public void transition(@NonNull final ZIKTransition transition, @NonNull final Map<String,Object> arguments, @NonNull final ZIKDeviceCallback deviceCallback) {
+    public void transition(@NonNull final ZIKTransition transition, @NonNull final Map<String,Object> arguments, @NonNull final ZIKCallback<ZIKDevice> deviceCallback) {
         Request request = transition.requestForTransition(arguments);
         ZIKSession.httpClient.newCall(request).enqueue(new Callback() {
             @Override
@@ -121,19 +121,19 @@ public class ZIKDevice implements Parcelable {
         });
     }
 
-    public void fetchAsync(@NonNull final ZIKDeviceCallback deviceCallback) {
+    public void fetchAsync(@NonNull final ZIKCallback<ZIKDevice> deviceCallback) {
         this.fetchAsync(ZIKSession.getSharedSession(),deviceCallback);
     }
 
-    public void fetchAsync(@NonNull final ZIKSession session, @NonNull final ZIKDeviceCallback deviceCallback) {
+    public void fetchAsync(@NonNull final ZIKSession session, @NonNull final ZIKCallback<ZIKDevice> deviceCallback) {
         new ZIKDeviceAsyncTask(session,this,deviceCallback).execute();
     }
 
-    public void fetchSync(@NonNull final ZIKDeviceCallback deviceCallback) {
+    public void fetchSync(@NonNull final ZIKCallback<ZIKDevice> deviceCallback) {
         this.fetchSync(ZIKSession.getSharedSession(),deviceCallback);
     }
 
-    public void fetchSync(@NonNull final ZIKSession session, @NonNull final ZIKDeviceCallback deviceCallback) {
+    public void fetchSync(@NonNull final ZIKSession session, @NonNull final ZIKCallback<ZIKDevice> deviceCallback) {
         for( ZIKLink deviceLink : this.getLinks() ) {
             if( deviceLink.isSelf() ) {
                 Request request = session.requestBuilderWithURL(deviceLink.getHref()).get().build();
@@ -180,7 +180,7 @@ public class ZIKDevice implements Parcelable {
     }
 
     @Override
-    public void writeToParcel(Parcel dest, int flags) {
+    public void writeToParcel(@NonNull final Parcel dest, final int flags) {
         dest.writeParcelable(this.deviceId, flags);
         dest.writeString(this.type);
         dest.writeString(this.name);
@@ -193,7 +193,7 @@ public class ZIKDevice implements Parcelable {
     }
 
     @SuppressWarnings("unchecked")
-    protected ZIKDevice(Parcel in) {
+    protected ZIKDevice(@NonNull final Parcel in) {
         this.deviceId = in.readParcelable(ZIKDeviceId.class.getClassLoader());
         this.type = in.readString();
         this.name = in.readString();

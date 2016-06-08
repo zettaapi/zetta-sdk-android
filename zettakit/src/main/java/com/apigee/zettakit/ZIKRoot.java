@@ -54,14 +54,14 @@ public class ZIKRoot implements Parcelable {
     }
 
     @Override
-    public void writeToParcel(Parcel dest, int flags) {
+    public void writeToParcel(@NonNull final Parcel dest, final int flags) {
         dest.writeParcelable(this.href, flags);
         dest.writeTypedList(this.links);
         dest.writeString(ZIKJsonUtils.listToJsonString(this.actions));
     }
 
     @SuppressWarnings("unchecked")
-    protected ZIKRoot(Parcel in) {
+    protected ZIKRoot(@NonNull final Parcel in) {
         this.href = in.readParcelable(ZIKLink.class.getClassLoader());
         this.links = in.createTypedArrayList(ZIKLink.CREATOR);
         List<Map<String,Object>> actions = new ArrayList<>();

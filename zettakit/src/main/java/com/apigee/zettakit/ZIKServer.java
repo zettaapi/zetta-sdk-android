@@ -63,7 +63,7 @@ public class ZIKServer implements Parcelable {
     }
 
     @Override
-    public void writeToParcel(Parcel dest, int flags) {
+    public void writeToParcel(@NonNull final Parcel dest, final int flags) {
         dest.writeString(ZIKJsonUtils.mapToJsonString(this.properties));
         dest.writeString(this.name);
         dest.writeParcelable(this.style, flags);
@@ -73,7 +73,7 @@ public class ZIKServer implements Parcelable {
     }
 
     @SuppressWarnings("unchecked")
-    protected ZIKServer(Parcel in) {
+    protected ZIKServer(@NonNull final Parcel in) {
         Map<String,Object> properties = new HashMap<String, Object>();
         try {
             properties = ZIKJsonUtils.createObjectFromJson(Map.class,in.readString());

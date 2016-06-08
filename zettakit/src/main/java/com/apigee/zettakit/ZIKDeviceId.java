@@ -41,11 +41,11 @@ public class ZIKDeviceId implements Parcelable {
     }
 
     @Override
-    public void writeToParcel(Parcel dest, int flags) {
+    public void writeToParcel(@NonNull final Parcel dest, final int flags) {
         dest.writeString(this.uuidString);
     }
 
-    protected ZIKDeviceId(Parcel in) {
+    protected ZIKDeviceId(@NonNull final Parcel in) {
         this.uuidString = in.readString();
         this.uuid = UUID.fromString(this.uuidString);
     }

@@ -62,7 +62,7 @@ public class ZIKStyleColor implements Parcelable {
     }
 
     @Override
-    public void writeToParcel(Parcel dest, int flags) {
+    public void writeToParcel(@NonNull final Parcel dest, final int flags) {
         dest.writeString(this.hex);
         dest.writeInt(this.decimal.size());
         for (Map.Entry<String, Integer> entry : this.decimal.entrySet()) {
@@ -72,7 +72,7 @@ public class ZIKStyleColor implements Parcelable {
         dest.writeInt(this.color);
     }
 
-    protected ZIKStyleColor(Parcel in) {
+    protected ZIKStyleColor(@NonNull final Parcel in) {
         this.hex = in.readString();
         int decimalSize = in.readInt();
         this.decimal = new HashMap<String, Integer>(decimalSize);
