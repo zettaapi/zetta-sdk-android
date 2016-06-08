@@ -45,6 +45,18 @@ public class ZIKServer implements Parcelable {
         }
     }
 
+    @Nullable
+    public ZIKDevice getDeviceNamed(@NonNull final String name) {
+        ZIKDevice deviceForName = null;
+        for( ZIKDevice device : getDevices() ) {
+            if( device.getName() != null && device.getName().equalsIgnoreCase(name) ) {
+                deviceForName = device;
+                break;
+            }
+        }
+        return deviceForName;
+    }
+
     @Override
     public int describeContents() {
         return 0;

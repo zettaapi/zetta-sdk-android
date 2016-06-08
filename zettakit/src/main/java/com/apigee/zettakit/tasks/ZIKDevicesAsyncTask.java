@@ -9,7 +9,6 @@ import com.apigee.zettakit.ZIKServer;
 import com.apigee.zettakit.ZIKSession;
 import com.apigee.zettakit.callbacks.ZIKDevicesCallback;
 
-import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
@@ -19,7 +18,7 @@ public class ZIKDevicesAsyncTask extends AsyncTask<Void,Void,Void> {
     @NonNull private final ZIKServer server;
 
     @Nullable private List<ZIKDevice> devices;
-    @Nullable private IOException exception;
+    @Nullable private Exception exception;
 
     public ZIKDevicesAsyncTask(@NonNull final ZIKSession session, @NonNull final ZIKServer server, @NonNull final ZIKDevicesCallback devicesCallback) {
         this.session = session;
@@ -35,7 +34,7 @@ public class ZIKDevicesAsyncTask extends AsyncTask<Void,Void,Void> {
                 ZIKDevicesAsyncTask.this.devices = devices;
             }
             @Override
-            public void onFailure(@NonNull IOException exception) {
+            public void onFailure(@NonNull Exception exception) {
                 ZIKDevicesAsyncTask.this.exception = exception;
             }
         });

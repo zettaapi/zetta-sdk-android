@@ -9,7 +9,6 @@ import com.apigee.zettakit.ZIKRoot;
 import com.apigee.zettakit.ZIKSession;
 import com.apigee.zettakit.callbacks.ZIKRootCallback;
 
-import java.io.IOException;
 import java.util.Collections;
 import java.util.Map;
 
@@ -19,7 +18,7 @@ public class ZIKRootAsyncTask extends AsyncTask<Void,Void,Void> {
     @NonNull private final String rootUrl;
 
     @Nullable private ZIKRoot root;
-    @Nullable private IOException exception;
+    @Nullable private Exception exception;
 
     public ZIKRootAsyncTask(@NonNull final ZIKSession session, @NonNull final String rootUrl, @NonNull final ZIKRootCallback rootCallback) {
         this.session = session;
@@ -35,7 +34,7 @@ public class ZIKRootAsyncTask extends AsyncTask<Void,Void,Void> {
                 ZIKRootAsyncTask.this.root = root;
             }
             @Override
-            public void onFailure(@NonNull IOException exception) {
+            public void onFailure(@NonNull Exception exception) {
                 ZIKRootAsyncTask.this.exception = exception;
             }
         });

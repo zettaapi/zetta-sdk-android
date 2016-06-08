@@ -5,14 +5,18 @@ import android.os.Parcel;
 import android.support.annotation.NonNull;
 import android.test.ApplicationTestCase;
 
+import com.apigee.zettakit.callbacks.ZIKDeviceCallback;
 import com.apigee.zettakit.callbacks.ZIKDevicesCallback;
 import com.apigee.zettakit.callbacks.ZIKRootCallback;
 import com.apigee.zettakit.callbacks.ZIKServersCallback;
+import com.apigee.zettakit.listeners.ZIKStreamListener;
 
 import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+
+import okhttp3.Response;
 
 /**
  * <a href="http://d.android.com/tools/testing/testing_android.html">Testing Fundamentals</a>
@@ -40,7 +44,7 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
                                     signal.countDown();
                                 }
                                 @Override
-                                public void onFailure(@NonNull IOException exception) {
+                                public void onFailure(@NonNull Exception exception) {
                                     throw new IllegalStateException("unexpected code path for this test");
                                 }
                             });
@@ -49,14 +53,87 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
                         }
                     }
                     @Override
-                    public void onFailure(@NonNull IOException exception) {
+                    public void onFailure(@NonNull Exception exception) {
                         throw new IllegalStateException("unexpected code path for this test");
                     }
                 });
             }
 
             @Override
-            public void onFailure(@NonNull IOException exception) {
+            public void onFailure(@NonNull Exception exception) {
+                throw new IllegalStateException("unexpected code path for this test" + exception.toString());
+            }
+        });
+        signal.await(120, TimeUnit.SECONDS);
+    }
+
+    public void testZIKStream() throws InterruptedException {
+        final CountDownLatch signal = new CountDownLatch(1);
+        ZIKSession.init(this.getContext());
+        final ZIKSession sharedSession = ZIKSession.getSharedSession();
+        sharedSession.getRootAsync("http://stage.zettaapi.org", new ZIKRootCallback() {
+            @Override
+            public void onSuccess(@NonNull ZIKRoot root) {
+                sharedSession.getServersAsync(root, new ZIKServersCallback() {
+                    @Override
+                    public void onSuccess(@NonNull List<ZIKServer> servers) {
+                        if (!servers.isEmpty()) {
+                            ZIKServer server = servers.get(1);
+                            ZIKDevice device = server.getDeviceNamed("Thermometer");
+                            if( device != null ) {
+                                device.fetchAsync(new ZIKDeviceCallback() {
+                                    @Override
+                                    public void onSuccess(@NonNull ZIKDevice device) {
+                                        final ZIKStream stream = device.stream("temperature");
+                                        if( stream != null ) {
+                                            stream.setStreamListener(new ZIKStreamListener() {
+                                                @Override
+                                                public void onOpen() { }
+                                                @Override
+                                                public void onPong() { }
+
+                                                @Override
+                                                public void onError(IOException exception, Response response) {
+                                                    throw new IllegalStateException("unexpected code path for this test");
+                                                }
+
+                                                @Override
+                                                public void onUpdate(Object object) {
+                                                    assertTrue(object instanceof ZIKStreamEntry);
+                                                    ZIKStreamEntry streamEntry = (ZIKStreamEntry) object;
+                                                    assertTrue(streamEntry.getData() instanceof Double);
+                                                    System.out.print(streamEntry.getData());
+                                                    stream.close();
+                                                }
+
+                                                @Override
+                                                public void onClose() {
+                                                    signal.countDown();
+                                                }
+                                            });
+                                            stream.resume();
+                                        }
+                                    }
+
+                                    @Override
+                                    public void onFailure(@NonNull Exception exception) {
+                                        signal.countDown();
+                                    }
+                                });
+                            }
+                        } else {
+                            throw new IllegalStateException("unexpected code path for this test");
+                        }
+                    }
+                    @Override
+                    public void onFailure(@NonNull Exception exception) {
+                        throw new IllegalStateException("unexpected code path for this test");
+                    }
+                });
+            }
+
+            @Override
+            public void onFailure(@NonNull Exception exception) {
                 throw new IllegalStateException("unexpected code path for this test" + exception.toString());
             }
         });
@@ -79,7 +156,7 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
             }
 
             @Override
-            public void onFailure(@NonNull IOException exception) {
+            public void onFailure(@NonNull Exception exception) {
                 throw new IllegalStateException("unexpected code path for this test" + exception.toString());
             }
         });
@@ -110,14 +187,14 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
                         }
                     }
                     @Override
-                    public void onFailure(@NonNull IOException exception) {
+                    public void onFailure(@NonNull Exception exception) {
                         throw new IllegalStateException("unexpected code path for this test");
                     }
                 });
             }
 
             @Override
-            public void onFailure(@NonNull IOException exception) {
+            public void onFailure(@NonNull Exception exception) {
                 throw new IllegalStateException("unexpected code path for this test" + exception.toString());
             }
         });
@@ -150,7 +227,7 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
                                     signal.countDown();
                                 }
                                 @Override
-                                public void onFailure(@NonNull IOException exception) {
+                                public void onFailure(@NonNull Exception exception) {
                                     throw new IllegalStateException("unexpected code path for this test");
                                 }
                             });
@@ -159,14 +236,14 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
                         }
                     }
                     @Override
-                    public void onFailure(@NonNull IOException exception) {
+                    public void onFailure(@NonNull Exception exception) {
                         throw new IllegalStateException("unexpected code path for this test");
                     }
                 });
             }
 
             @Override
-            public void onFailure(@NonNull IOException exception) {
+            public void onFailure(@NonNull Exception exception) {
                 throw new IllegalStateException("unexpected code path for this test" + exception.toString());
             }
         });

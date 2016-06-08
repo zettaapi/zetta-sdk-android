@@ -17,9 +17,7 @@ public class ZIKLink implements Parcelable {
     @NonNull public String getHref() {
         return this.href;
     }
-    @Nullable public String getTitle() {
-        return this.title;
-    }
+    @Nullable public String getTitle() { return this.title; }
     @Nullable public List<String> getRel() { return this.rel; }
 
     public ZIKLink(@NonNull final String href, @Nullable final String title, @Nullable final List<String> rel) {

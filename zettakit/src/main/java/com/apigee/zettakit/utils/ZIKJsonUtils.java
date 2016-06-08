@@ -6,6 +6,7 @@ import com.apigee.zettakit.jsonHelpers.ZIKDeviceJsonAdapter;
 import com.apigee.zettakit.jsonHelpers.ZIKLinkJsonAdapter;
 import com.apigee.zettakit.jsonHelpers.ZIKRootJsonAdapter;
 import com.apigee.zettakit.jsonHelpers.ZIKServerJsonAdapter;
+import com.apigee.zettakit.jsonHelpers.ZIKStreamEntryJsonAdapter;
 import com.apigee.zettakit.jsonHelpers.ZIKStyleJsonAdapter;
 import com.apigee.zettakit.jsonHelpers.ZIKTransitionJsonAdapter;
 import com.squareup.moshi.JsonAdapter;
@@ -23,6 +24,7 @@ public final class ZIKJsonUtils {
         moshiBuilder.add(new ZIKLinkJsonAdapter());
         moshiBuilder.add(new ZIKRootJsonAdapter());
         moshiBuilder.add(new ZIKServerJsonAdapter());
+        moshiBuilder.add(new ZIKStreamEntryJsonAdapter());
         moshiBuilder.add(new ZIKStyleJsonAdapter());
         moshiBuilder.add(new ZIKTransitionJsonAdapter());
         moshi = moshiBuilder.build();

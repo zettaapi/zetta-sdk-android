@@ -16,7 +16,7 @@ public class ZIKDeviceAsyncTask extends AsyncTask<Void,Void,Void> {
     @NonNull private final ZIKDevice deviceToLoad;
 
     @Nullable private ZIKDevice loadedDevice;
-    @Nullable private IOException exception;
+    @Nullable private Exception exception;
 
     public ZIKDeviceAsyncTask(@NonNull final ZIKSession session, @NonNull final ZIKDevice deviceToLoad, @NonNull final ZIKDeviceCallback deviceCallback) {
         this.session = session;
@@ -32,7 +32,7 @@ public class ZIKDeviceAsyncTask extends AsyncTask<Void,Void,Void> {
                 ZIKDeviceAsyncTask.this.loadedDevice = device;
             }
             @Override
-            public void onFailure(@NonNull final IOException exception) {
+            public void onFailure(@NonNull final Exception exception) {
                 ZIKDeviceAsyncTask.this.exception = exception;
             }
         });

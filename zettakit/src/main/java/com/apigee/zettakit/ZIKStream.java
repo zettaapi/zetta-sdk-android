@@ -1,9 +1,14 @@
 package com.apigee.zettakit;
 
 import android.support.annotation.NonNull;
-import android.util.Log;
+import android.support.annotation.Nullable;
+
+import com.apigee.zettakit.listeners.ZIKStreamListener;
+import com.apigee.zettakit.utils.ZIKJsonUtils;
 
 import java.io.IOException;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import okhttp3.Request;
 import okhttp3.Response;
@@ -14,43 +19,134 @@ import okhttp3.ws.WebSocketListener;
 import okio.Buffer;
 
 public class ZIKStream {
-    private final ZIKLink link;
-    private final WebSocketCall webSocketCall;
+    private enum ZIKStreamState { OPEN, OPENING, CLOSED }
+
+    private boolean pingWhileOpen = true;
+
+    @NonNull  private final ZIKLink link;
+    @Nullable private ZIKStreamListener streamListener;
+
+    @NonNull  private ZIKStreamState streamState;
+    @Nullable private Timer pingTimer;
+    @Nullable private WebSocket webSocket;
 
     public ZIKStream(@NonNull final ZIKLink link) {
         this.link = link;
-        final Request request = new Request.Builder().url(link.getHref()).build();
-        this.webSocketCall = WebSocketCall.create(ZIKSession.httpClient, request);
+        this.streamState = ZIKStreamState.CLOSED;
     }
 
-    public void open() {
-        webSocketCall.enqueue(new WebSocketListener() {
-            @Override
-            public void onOpen(WebSocket webSocket, Response response) {
-                Log.d("xxx", "open " + response);
-            }
+    public boolean isOpen() {
+        return this.streamState == ZIKStreamState.OPEN;
+    }
 
-            @Override
-            public void onFailure(IOException e, Response response) {
-                Log.d("xxx", "failure " + response);
-                Log.e("xxx", "failure ", e);
-            }
+    public void setPingWhileOpen(final boolean pingWhileOpen) {
+        this.pingWhileOpen = pingWhileOpen;
+    }
 
-            @Override
-            public void onMessage(ResponseBody message) throws IOException {
-                Log.d("xxx", "message " + message.string());
-                message.close();
-            }
+    public void setStreamListener(@Nullable final ZIKStreamListener streamListener) {
+        this.streamListener = streamListener;
+    }
 
-            @Override
-            public void onPong(Buffer payload) {
-                Log.d("xxx", "pong" + payload);
-            }
+    private void cancelPingTimer() {
+        if( pingTimer != null ) {
+            pingTimer.cancel();
+            pingTimer = null;
+        }
+    }
 
-            @Override
-            public void onClose(int code, String reason) {
-                Log.d("xxx", "close " + code + " " + reason);
-            }
-        });
+    private void schedulePing() {
+        if( pingWhileOpen ) {
+            this.cancelPingTimer();
+
+            pingTimer = new Timer();
+            pingTimer.scheduleAtFixedRate(new TimerTask() {
+                @Override
+                public void run() {
+                    if( webSocket != null ) {
+                        try {
+                            webSocket.sendPing(new Buffer());
+                        } catch ( Exception pingException ) {
+                            ZIKStream.this.close();
+                        }
+                    }
+                }
+            }, 0, 2000);
+        }
+    }
+
+    public void close() {
+        if( webSocket != null ) {
+            try {
+                this.cancelPingTimer();
+                webSocket.close(1000,"");
+            } catch ( Exception closeException ) { }
+        }
+    }
+
+    public void resume() {
+        if( webSocket == null && this.streamState == ZIKStreamState.CLOSED ) {
+            ZIKStream.this.streamState = ZIKStreamState.OPENING;
+
+            final Request request = new Request.Builder().url(link.getHref()).build();
+            WebSocketCall webSocketCall = WebSocketCall.create(ZIKSession.httpClient, request);
+            webSocketCall.enqueue(new WebSocketListener() {
+
+                @Override
+                public void onOpen(WebSocket webSocket, Response response) {
+                    ZIKStream.this.streamState = ZIKStreamState.OPEN;
+                    ZIKStream.this.webSocket = webSocket;
+                    ZIKStream.this.schedulePing();
+                    if( streamListener != null ) {
+                        streamListener.onOpen();
+                    }
+                }
+
+                @Override
+                public void onFailure(IOException e, Response response) {
+                    ZIKStream.this.cancelPingTimer();
+                    ZIKStream.this.webSocket = null;
+                    if( streamListener != null ) {
+                        streamListener.onError(e,response);
+                    }
+                }
+
+                @Override
+                public void onMessage(ResponseBody message) throws IOException {
+                    String messageString = message.string();
+                    message.close();
+
+                    if( streamListener != null ) {
+                        String linkTitle = ZIKStream.this.link.getTitle();
+                        if( linkTitle != null && linkTitle.equalsIgnoreCase("logs") ) {
+                            // TODO: Implement ZIKLogStreamEntry class.
+                        } else if( ZIKStream.this.link.hasRel("http://rels.zettajs.io/query") ) {
+                            ZIKDevice device = ZIKJsonUtils.createObjectFromJson(ZIKDevice.class,messageString);
+                            streamListener.onUpdate(device);
+                        } else {
+                            ZIKStreamEntry streamEntry = ZIKJsonUtils.createObjectFromJson(ZIKStreamEntry.class,messageString);
+                            streamListener.onUpdate(streamEntry);
+                        }
+                    }
+                }
+
+                @Override
+                public void onPong(Buffer payload) {
+                    if( streamListener != null ) {
+                        streamListener.onPong();
+                    }
+                }
+
+                @Override
+                public void onClose(int code, String reason) {
+                    ZIKStream.this.webSocket = null;
+                    ZIKStream.this.streamState = ZIKStreamState.CLOSED;
+                    ZIKStream.this.cancelPingTimer();
+
+                    if( streamListener != null ) {
+                        streamListener.onClose();
+                    }
+                }
+            });
+        }
     }
 }

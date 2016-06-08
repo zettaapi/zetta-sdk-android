@@ -9,7 +9,6 @@ import com.apigee.zettakit.ZIKServer;
 import com.apigee.zettakit.ZIKSession;
 import com.apigee.zettakit.callbacks.ZIKServersCallback;
 
-import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
@@ -19,7 +18,7 @@ public class ZIKServersAsyncTask extends AsyncTask<Void,Void,Void> {
     @NonNull private final ZIKRoot root;
 
     @Nullable private List<ZIKServer> servers;
-    @Nullable private IOException exception;
+    @Nullable private Exception exception;
 
     public ZIKServersAsyncTask(@NonNull final ZIKSession session, @NonNull final ZIKRoot root, @NonNull final ZIKServersCallback serversCallback) {
         this.session = session;
@@ -35,7 +34,7 @@ public class ZIKServersAsyncTask extends AsyncTask<Void,Void,Void> {
                 ZIKServersAsyncTask.this.servers = servers;
             }
             @Override
-            public void onFailure(@NonNull IOException exception) {
+            public void onFailure(@NonNull Exception exception) {
                 ZIKServersAsyncTask.this.exception = exception;
             }
         });

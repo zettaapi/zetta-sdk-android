@@ -53,7 +53,7 @@ public class ZIKSession {
             if( response.isSuccessful() ) {
                 rootCallback.onSuccess(ZIKJsonUtils.createObjectFromJson(ZIKRoot.class,response.body().string()));
             }
-        } catch( IOException e ) {
+        } catch( Exception e ) {
             rootCallback.onFailure(e);
         }
     }
@@ -74,7 +74,7 @@ public class ZIKSession {
                     if( response.isSuccessful() ) {
                         loadedServers.add(ZIKJsonUtils.createObjectFromJson(ZIKServer.class,response.body().string()));
                     }
-                } catch( IOException exception ) {
+                } catch( Exception exception ) {
                     serversCallback.onFailure(exception);
                     return;
                 }
@@ -105,7 +105,7 @@ public class ZIKSession {
                             if( response.isSuccessful() ) {
                                 loadedDevices.add(ZIKJsonUtils.createObjectFromJson(ZIKDevice.class,response.body().string()));
                             }
-                        } catch( IOException exception ) {
+                        } catch( Exception exception ) {
                             devicesCallback.onFailure(exception);
                             return;
                         }
