@@ -133,13 +133,17 @@ public class ZIKSession {
     }
 
     @NonNull
-    private Request.Builder requestBuilderWithURL(@NonNull final String url) {
+    protected Request.Builder requestBuilderWithURL(@NonNull final String url) {
         Request.Builder requestBuilder = new Request.Builder().url(url);
+        this.addHeadersToRequest(requestBuilder);
+        return requestBuilder;
+    }
+
+    protected void addHeadersToRequest(@NonNull final Request.Builder requestBuilder) {
         for(Map.Entry<String,Object> headerEntry : this.headers.entrySet()) {
             String headerKey = headerEntry.getKey();
             String headerValue = headerEntry.getValue().toString();
             requestBuilder.addHeader(headerKey,headerValue);
         }
-        return requestBuilder;
     }
 }

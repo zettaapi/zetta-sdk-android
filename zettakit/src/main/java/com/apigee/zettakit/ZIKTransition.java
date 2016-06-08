@@ -5,11 +5,19 @@ import android.os.Parcelable;
 import android.support.annotation.NonNull;
 
 import com.apigee.zettakit.utils.ZIKJsonUtils;
+import com.apigee.zettakit.utils.ZIKUtils;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import okhttp3.MediaType;
+import okhttp3.Request;
+import okhttp3.RequestBody;
 
 public class ZIKTransition implements Parcelable {
     @NonNull private final String href;
@@ -34,6 +42,30 @@ public class ZIKTransition implements Parcelable {
         this.method = method;
         this.type = type;
         this.fields = fields;
+    }
+
+    @NonNull
+    public Request requestForTransition(@NonNull final Map<String,Object> args) {
+        Request.Builder requestBuilder = new Request.Builder().url(this.getHref());
+        ZIKSession.getSharedSession().addHeadersToRequest(requestBuilder);
+
+        HashMap<String,Object> requestDataMap = new HashMap<>();
+        requestDataMap.putAll(args);
+        requestDataMap.put("action",this.getName());
+
+        ArrayList<String> encodedParams = new ArrayList<>();
+        for( Map.Entry<String,Object> mapEntry : requestDataMap.entrySet() ) {
+            try {
+                String keyString = URLEncoder.encode(mapEntry.getKey(),"UTF-8");
+                String valueString = URLEncoder.encode(mapEntry.getValue().toString(),"UTF-8");
+                encodedParams.add(keyString + "=" + valueString);
+            } catch (UnsupportedEncodingException ignored) {}
+        }
+
+        String requestDataString = ZIKUtils.concatStrings(encodedParams,"&");
+        requestBuilder.header("Content-Length",Integer.toString(requestDataString.length()));
+        requestBuilder.method(this.method, RequestBody.create(MediaType.parse(this.getType()),requestDataString));
+        return requestBuilder.build();
     }
 
     @Override

@@ -5,6 +5,8 @@ import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
+import com.apigee.zettakit.callbacks.ZIKDeviceCallback;
+import com.apigee.zettakit.tasks.ZIKDeviceAsyncTask;
 import com.apigee.zettakit.utils.ZIKJsonUtils;
 
 import java.io.IOException;
@@ -13,6 +15,11 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.Request;
+import okhttp3.Response;
 
 public class ZIKDevice implements Parcelable {
     private static final String ID = "id";
@@ -74,6 +81,72 @@ public class ZIKDevice implements Parcelable {
         } else {
             this.streamLinks = Collections.emptyList();
         }
+    }
+
+    public void transition(@NonNull final String transitionName, @NonNull final ZIKDeviceCallback deviceCallback) {
+        this.transition(transitionName,new HashMap<String, Object>(),deviceCallback);
+    }
+
+    public void transition(@NonNull final String transitionName, @NonNull final Map<String,Object> arguments, @NonNull final ZIKDeviceCallback deviceCallback) {
+        ZIKTransition transition = null;
+        for( ZIKTransition deviceTransition : this.getTransitions() ) {
+            if( deviceTransition.getName().equalsIgnoreCase(transitionName) ) {
+                transition = deviceTransition;
+                break;
+            }
+        }
+        if( transition != null ) {
+            this.transition(transition,arguments,deviceCallback);
+        } else {
+            deviceCallback.onFailure(new IOException("No transition found with name: " + transitionName));
+        }
+    }
+
+    public void transition(@NonNull final ZIKTransition transition, @NonNull final Map<String,Object> arguments, @NonNull final ZIKDeviceCallback deviceCallback) {
+        Request request = transition.requestForTransition(arguments);
+        ZIKSession.httpClient.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                deviceCallback.onFailure(e);
+            }
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                try {
+                    ZIKDevice device = ZIKJsonUtils.createObjectFromJson(ZIKDevice.class,response.body().string());
+                    deviceCallback.onSuccess(device);
+                } catch (IOException exception) {
+                    deviceCallback.onFailure(exception);
+                }
+            }
+        });
+    }
+
+    public void fetchAsync(@NonNull final ZIKDeviceCallback deviceCallback) {
+        this.fetchAsync(ZIKSession.getSharedSession(),deviceCallback);
+    }
+
+    public void fetchAsync(@NonNull final ZIKSession session, @NonNull final ZIKDeviceCallback deviceCallback) {
+        new ZIKDeviceAsyncTask(session,this,deviceCallback).execute();
+    }
+
+    public void fetchSync(@NonNull final ZIKDeviceCallback deviceCallback) {
+        this.fetchSync(ZIKSession.getSharedSession(),deviceCallback);
+    }
+
+    public void fetchSync(@NonNull final ZIKSession session, @NonNull final ZIKDeviceCallback deviceCallback) {
+        for( ZIKLink deviceLink : this.getLinks() ) {
+            if( deviceLink.isSelf() ) {
+                Request request = session.requestBuilderWithURL(deviceLink.getHref()).get().build();
+                try {
+                    Response response = ZIKSession.httpClient.newCall(request).execute();
+                    deviceCallback.onSuccess(ZIKJsonUtils.createObjectFromJson(ZIKDevice.class,response.body().string()));
+                } catch( IOException exception ) {
+                    deviceCallback.onFailure(exception);
+                }
+                return;
+            }
+        }
+        deviceCallback.onFailure(new IOException("No self link for device found."));
     }
 
     @Nullable
