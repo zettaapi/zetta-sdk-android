@@ -74,7 +74,7 @@ public class ZIKServer implements Parcelable {
 
     @SuppressWarnings("unchecked")
     protected ZIKServer(@NonNull final Parcel in) {
-        Map<String,Object> properties = new HashMap<String, Object>();
+        Map<String,Object> properties = new HashMap<>();
         try {
             properties = ZIKJsonUtils.createObjectFromJson(Map.class,in.readString());
         } catch( IOException ignored ) {}

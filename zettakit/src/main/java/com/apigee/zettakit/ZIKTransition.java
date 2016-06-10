@@ -88,7 +88,7 @@ public class ZIKTransition implements Parcelable {
         this.name = in.readString();
         this.method = in.readString();
         this.type = in.readString();
-        List<Map<String, Object>> fields = new ArrayList<Map<String, Object>>();
+        List<Map<String, Object>> fields = new ArrayList<>();
         try {
             fields = ZIKJsonUtils.createObjectFromJson(List.class,in.readString());
         } catch (IOException ignored) {}

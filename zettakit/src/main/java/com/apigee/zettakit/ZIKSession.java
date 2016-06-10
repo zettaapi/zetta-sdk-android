@@ -29,7 +29,7 @@ public class ZIKSession {
     @NonNull public static ZIKSession getSharedSession() {
         return ZIKSession.sharedSession;
     }
-    @NonNull private HashMap<String,Object> headers = new HashMap<String,Object>();
+    @NonNull private HashMap<String,Object> headers = new HashMap<>();
 
     public static void init(@NonNull final Context context) {
         ZIKSession.appContext = context.getApplicationContext();

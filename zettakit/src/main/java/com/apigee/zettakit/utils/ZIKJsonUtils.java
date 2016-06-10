@@ -4,6 +4,7 @@ import android.support.annotation.NonNull;
 
 import com.apigee.zettakit.jsonHelpers.ZIKDeviceJsonAdapter;
 import com.apigee.zettakit.jsonHelpers.ZIKLinkJsonAdapter;
+import com.apigee.zettakit.jsonHelpers.ZIKLogStreamEntryJsonAdapter;
 import com.apigee.zettakit.jsonHelpers.ZIKRootJsonAdapter;
 import com.apigee.zettakit.jsonHelpers.ZIKServerJsonAdapter;
 import com.apigee.zettakit.jsonHelpers.ZIKStreamEntryJsonAdapter;
@@ -22,6 +23,7 @@ public final class ZIKJsonUtils {
         Moshi.Builder moshiBuilder = new Moshi.Builder();
         moshiBuilder.add(new ZIKDeviceJsonAdapter());
         moshiBuilder.add(new ZIKLinkJsonAdapter());
+        moshiBuilder.add(new ZIKLogStreamEntryJsonAdapter());
         moshiBuilder.add(new ZIKRootJsonAdapter());
         moshiBuilder.add(new ZIKServerJsonAdapter());
         moshiBuilder.add(new ZIKStreamEntryJsonAdapter());

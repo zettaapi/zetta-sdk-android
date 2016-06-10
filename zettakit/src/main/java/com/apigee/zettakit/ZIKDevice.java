@@ -71,7 +71,7 @@ public class ZIKDevice implements Parcelable {
         }
 
         if( !links.isEmpty() ) {
-            ArrayList<ZIKLink> streamLinks = new ArrayList<ZIKLink>();
+            ArrayList<ZIKLink> streamLinks = new ArrayList<>();
             for( ZIKLink link : links ) {
                 if( link.hasRel(MONITOR) ) {
                     streamLinks.add(link);
@@ -149,6 +149,11 @@ public class ZIKDevice implements Parcelable {
         deviceCallback.onFailure(new IOException("No self link for device found."));
     }
 
+    @NonNull
+    public ZIKDevice refreshWithLogEntry(@NonNull final ZIKLogStreamEntry logStreamEntry) {
+        return new ZIKDevice(logStreamEntry.getProperties(),this.getLinks(),logStreamEntry.getTransitions(),this.getStyle());
+    }
+
     @Nullable
     public ZIKStream stream(@NonNull final String name) {
         ZIKStream stream = null;
@@ -165,7 +170,7 @@ public class ZIKDevice implements Parcelable {
 
     @NonNull
     public List<ZIKStream> getAllStreams() {
-        ArrayList<ZIKStream> streams = new ArrayList<ZIKStream>();
+        ArrayList<ZIKStream> streams = new ArrayList<>();
         if ( !streamLinks.isEmpty() ) {
             for( ZIKLink link : streamLinks ) {
                 streams.add(new ZIKStream(link));

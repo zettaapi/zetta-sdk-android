@@ -48,7 +48,7 @@ public class ZIKStyleColor implements Parcelable {
         if( decimalObject != null && decimalObject instanceof Map ) {
             this.decimal = (Map)decimalObject;
         } else {
-            HashMap<String,Integer> decimalMap = new HashMap<String,Integer>();
+            HashMap<String,Integer> decimalMap = new HashMap<>();
             decimalMap.put(RED,Color.red(this.color));
             decimalMap.put(GREEN,Color.green(this.color));
             decimalMap.put(BLUE,Color.blue(this.color));
@@ -75,7 +75,7 @@ public class ZIKStyleColor implements Parcelable {
     protected ZIKStyleColor(@NonNull final Parcel in) {
         this.hex = in.readString();
         int decimalSize = in.readInt();
-        this.decimal = new HashMap<String, Integer>(decimalSize);
+        this.decimal = new HashMap<>(decimalSize);
         for (int i = 0; i < decimalSize; i++) {
             String key = in.readString();
             Double value = (Double) in.readValue(Integer.class.getClassLoader());

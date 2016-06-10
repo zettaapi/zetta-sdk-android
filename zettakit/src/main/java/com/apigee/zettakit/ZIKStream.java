@@ -118,10 +118,12 @@ public class ZIKStream implements Parcelable {
                     message.close();
 
                     if( streamListener != null ) {
-                        String linkTitle = ZIKStream.this.link.getTitle();
+                        final ZIKLink link = ZIKStream.this.link;
+                        final String linkTitle = link.getTitle();
                         if( linkTitle != null && linkTitle.equalsIgnoreCase("logs") ) {
-                            // TODO: Implement ZIKLogStreamEntry class.
-                        } else if( ZIKStream.this.link.hasRel("http://rels.zettajs.io/query") ) {
+                            ZIKLogStreamEntry logStreamEntry = ZIKJsonUtils.createObjectFromJson(ZIKLogStreamEntry.class,messageString);
+                            streamListener.onUpdate(logStreamEntry);
+                        } else if( link.hasRel("http://rels.zettajs.io/query") ) {
                             ZIKDevice device = ZIKJsonUtils.createObjectFromJson(ZIKDevice.class,messageString);
                             streamListener.onUpdate(device);
                         } else {
