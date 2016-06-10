@@ -41,6 +41,10 @@ public class ZIKStream implements Parcelable {
         return this.streamState == ZIKStreamState.OPEN;
     }
 
+    public String getTitle() {
+        return link.getTitle();
+    }
+
     public void setPingWhileOpen(final boolean pingWhileOpen) {
         this.pingWhileOpen = pingWhileOpen;
     }
