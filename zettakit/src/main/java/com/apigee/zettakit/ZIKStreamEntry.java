@@ -16,4 +16,8 @@ public class ZIKStreamEntry {
         this.timeStamp = timestamp;
         this.data = data;
     }
+
+    @NonNull public String getTitle() {
+        return topic.substring(topic.lastIndexOf("/") + 1, topic.length());
+    }
 }

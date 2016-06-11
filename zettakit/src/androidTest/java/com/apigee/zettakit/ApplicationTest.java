@@ -4,6 +4,7 @@ import android.app.Application;
 import android.os.Parcel;
 import android.support.annotation.NonNull;
 import android.test.ApplicationTestCase;
+import android.util.Log;
 
 import com.apigee.zettakit.interfaces.ZIKCallback;
 import com.apigee.zettakit.interfaces.ZIKStreamListener;
@@ -99,7 +100,8 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
                                                     assertTrue(object instanceof ZIKStreamEntry);
                                                     ZIKStreamEntry streamEntry = (ZIKStreamEntry) object;
                                                     assertTrue(streamEntry.getData() instanceof Double);
-                                                    System.out.print(streamEntry.getData());
+                                                    Log.d("zik", ">" + streamEntry.getData());
+                                                    Log.d("zik", ">" + streamEntry.getTitle());
                                                     stream.close();
                                                 }
 
