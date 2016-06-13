@@ -28,6 +28,11 @@ public class ZIKStyle implements Parcelable {
     @Override
     public String toString() { return ZIKJsonUtils.objectToJsonString(ZIKStyle.class,this); }
 
+    @NonNull
+    public ZIKStyle fromString(@NonNull final String string) throws IOException {
+        return ZIKJsonUtils.createObjectFromJson(ZIKStyle.class,string);
+    }
+
     public ZIKStyle(@NonNull final Map<String,Object> properties, @NonNull final Map<String,Object> actions) {
         this.properties = properties;
         this.actions = actions;
