@@ -11,7 +11,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-public class ZIKLogStreamEntryJsonAdapter {
+public final class ZIKLogStreamEntryJsonAdapter {
     @FromJson
     public ZIKLogStreamEntry logStreamEntryFromJson(@NonNull final ZIKLogStreamEntryJson logStreamEntryJson) {
         String topic = logStreamEntryJson.topic;

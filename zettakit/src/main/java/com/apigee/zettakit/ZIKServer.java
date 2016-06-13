@@ -5,6 +5,9 @@ import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
+import com.apigee.zettakit.interfaces.ZIKCallback;
+import com.apigee.zettakit.interfaces.ZIKFetchable;
+import com.apigee.zettakit.tasks.ZIKFetchAsyncTask;
 import com.apigee.zettakit.utils.ZIKJsonUtils;
 
 import java.io.IOException;
@@ -12,7 +15,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class ZIKServer implements Parcelable {
+import okhttp3.Request;
+import okhttp3.Response;
+
+public class ZIKServer implements Parcelable, ZIKFetchable<ZIKServer> {
     private static final String NAME = "name";
 
     @NonNull  private final Map<String,Object> properties;
@@ -31,6 +37,14 @@ public class ZIKServer implements Parcelable {
     @NonNull public List<ZIKTransition> getTransitions() { return this.transitions; }
     @NonNull public List<ZIKDevice> getDevices() { return this.devices; }
 
+    @Override
+    public String toString() { return ZIKJsonUtils.objectToJsonString(ZIKServer.class,this); }
+
+    @NonNull
+    public static ZIKServer fromString(@NonNull final String string) throws IOException {
+        return ZIKJsonUtils.createObjectFromJson(ZIKServer.class,string);
+    }
+
     public ZIKServer(@NonNull final Map<String,Object> properties, @NonNull final List<ZIKDevice> devices, @NonNull final List<ZIKLink> links, @NonNull final List<ZIKTransition> transitions, @Nullable final ZIKStyle style) {
         this.properties = properties;
         this.devices = devices;
@@ -43,6 +57,39 @@ public class ZIKServer implements Parcelable {
         } else {
             this.name = null;
         }
+    }
+
+    @Override
+    public void fetchAsync(@NonNull ZIKCallback<ZIKServer> callback) {
+        this.fetchAsync(ZIKSession.getSharedSession(),callback);
+    }
+
+    @Override
+    public void fetchAsync(@NonNull final ZIKSession session, @NonNull final ZIKCallback<ZIKServer> callback) {
+        new ZIKFetchAsyncTask<ZIKServer>(session,this,callback).execute();
+    }
+
+    @Override
+    public void fetchSync(@NonNull ZIKCallback<ZIKServer> callback) {
+        this.fetchSync(ZIKSession.getSharedSession(),callback);
+    }
+
+    @Override
+    public void fetchSync(@NonNull final ZIKSession session, @NonNull final ZIKCallback<ZIKServer> serverCallback) {
+        for( ZIKLink serverLink : this.getLinks() ) {
+            if( serverLink.isSelf() ) {
+                try {
+                    Request request = session.requestBuilderWithURL(serverLink.getHref()).get().build();
+                    Response response = ZIKSession.httpClient.newCall(request).execute();
+                    ZIKServer server = ZIKServer.fromString(response.body().string());
+                    serverCallback.onSuccess(server);
+                } catch( Exception exception ) {
+                    serverCallback.onFailure(exception);
+                }
+                return;
+            }
+        }
+        serverCallback.onFailure(new IOException("No self link for device found."));
     }
 
     @Nullable

@@ -34,6 +34,9 @@ public class ZIKStyleColor implements Parcelable {
         return this.decimal.get(BLUE);
     }
 
+    @Override
+    public String toString() { return this.getHex(); }
+
     @SuppressWarnings("unchecked")
     public ZIKStyleColor(@NonNull final Map styleColorMap) {
         Object hexObject = styleColorMap.get(HEX);

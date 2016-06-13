@@ -5,6 +5,8 @@ import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
+import com.apigee.zettakit.utils.ZIKJsonUtils;
+
 import java.util.List;
 
 public class ZIKLink implements Parcelable {
@@ -19,6 +21,9 @@ public class ZIKLink implements Parcelable {
     }
     @Nullable public String getTitle() { return this.title; }
     @Nullable public List<String> getRel() { return this.rel; }
+
+    @Override
+    public String toString() { return ZIKJsonUtils.objectToJsonString(ZIKLink.class,this); }
 
     public ZIKLink(@NonNull final String href, @Nullable final String title, @Nullable final List<String> rel) {
         this.href = href;

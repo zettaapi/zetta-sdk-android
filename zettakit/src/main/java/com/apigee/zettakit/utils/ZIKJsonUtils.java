@@ -48,11 +48,15 @@ public final class ZIKJsonUtils {
 
     @NonNull
     public static String mapToJsonString(@NonNull final Map jsonMap) {
-        return ZIKJsonUtils.jsonAdapter(Map.class).toJson(jsonMap);
+        return ZIKJsonUtils.objectToJsonString(Map.class,jsonMap);
+    }
+
+    public static <T> String objectToJsonString(@NonNull final Class<T> objectClass, @NonNull final T object) {
+        return ZIKJsonUtils.jsonAdapter(objectClass).toJson(object);
     }
 
     @NonNull
     public static String listToJsonString(@NonNull final List list) {
-        return ZIKJsonUtils.jsonAdapter(List.class).toJson(list);
+        return ZIKJsonUtils.objectToJsonString(List.class,list);
     }
 }

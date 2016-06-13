@@ -11,7 +11,9 @@ public class ZIKDeviceId implements Parcelable {
     @NonNull private final String uuidString;
 
     @NonNull public UUID getUuid() { return this.uuid; }
-    @NonNull public String toString() { return this.uuidString; }
+
+    @Override
+    public String toString() { return this.uuidString; }
 
     public ZIKDeviceId(@NonNull final String uuidString) {
         this.uuidString = uuidString;

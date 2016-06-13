@@ -6,7 +6,7 @@ import com.apigee.zettakit.ZIKStreamEntry;
 import com.squareup.moshi.FromJson;
 import com.squareup.moshi.ToJson;
 
-public class ZIKStreamEntryJsonAdapter {
+public final class ZIKStreamEntryJsonAdapter {
     @FromJson
     public ZIKStreamEntry streamEntryFromJson(@NonNull final ZIKStreamEntryJson streamEntryJson) {
         String topic = streamEntryJson.topic;

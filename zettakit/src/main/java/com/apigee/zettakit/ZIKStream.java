@@ -32,6 +32,9 @@ public class ZIKStream implements Parcelable {
     @Nullable private Timer pingTimer;
     @Nullable private WebSocket webSocket;
 
+    @Override
+    public String toString() { return ZIKJsonUtils.objectToJsonString(ZIKLink.class,this.link); }
+
     public ZIKStream(@NonNull final ZIKLink link) {
         this.link = link;
         this.streamState = ZIKStreamState.CLOSED;
@@ -93,7 +96,17 @@ public class ZIKStream implements Parcelable {
         if( webSocket == null && this.streamState == ZIKStreamState.CLOSED ) {
             ZIKStream.this.streamState = ZIKStreamState.OPENING;
 
-            final Request request = ZIKSession.getSharedSession().requestBuilderWithURL(link.getHref()).build();
+            Request request;
+            try {
+                request = ZIKSession.getSharedSession().requestBuilderWithURL(link.getHref()).build();
+            } catch ( IllegalArgumentException exception ) {
+                ZIKStream.this.streamState = ZIKStreamState.CLOSED;
+                if( streamListener != null ) {
+                    streamListener.onError(exception,null);
+                }
+                return;
+            }
+
             final WebSocketCall webSocketCall = WebSocketCall.create(ZIKSession.httpClient, request);
             webSocketCall.enqueue(new WebSocketListener() {
 

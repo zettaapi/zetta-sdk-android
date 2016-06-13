@@ -25,6 +25,9 @@ public class ZIKStyle implements Parcelable {
     @Nullable public ZIKStyleColor getBackgroundColor() { return this.backgroundColor; }
     @Nullable public ZIKStyleColor getForegroundColor() { return this.foregroundColor; }
 
+    @Override
+    public String toString() { return ZIKJsonUtils.objectToJsonString(ZIKStyle.class,this); }
+
     public ZIKStyle(@NonNull final Map<String,Object> properties, @NonNull final Map<String,Object> actions) {
         this.properties = properties;
         this.actions = actions;

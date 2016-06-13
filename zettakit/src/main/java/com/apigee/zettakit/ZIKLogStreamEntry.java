@@ -2,6 +2,9 @@ package com.apigee.zettakit;
 
 import android.support.annotation.NonNull;
 
+import com.apigee.zettakit.utils.ZIKJsonUtils;
+
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -21,6 +24,14 @@ public class ZIKLogStreamEntry {
     @NonNull public List getInputs() { return inputs; }
     @NonNull public List<ZIKTransition> getTransitions() { return transitions; }
     public long getTimeStamp() { return timeStamp; }
+
+    @Override
+    public String toString() { return ZIKJsonUtils.objectToJsonString(ZIKLogStreamEntry.class,this); }
+
+    @NonNull
+    public static ZIKLogStreamEntry fromString(@NonNull final String string) throws IOException {
+        return ZIKJsonUtils.createObjectFromJson(ZIKLogStreamEntry.class,string);
+    }
 
     public ZIKLogStreamEntry(@NonNull final String topic,
                              @NonNull final String transition,

@@ -32,6 +32,9 @@ public class ZIKTransition implements Parcelable {
     @NonNull public List<Map<String,Object>> getFields() { return this.fields; }
     @NonNull public String getType() { return this.type; }
 
+    @Override
+    public String toString() { return ZIKJsonUtils.objectToJsonString(ZIKTransition.class,this); }
+
     public ZIKTransition(@NonNull final String href,
                          @NonNull final String name,
                          @NonNull final String method,

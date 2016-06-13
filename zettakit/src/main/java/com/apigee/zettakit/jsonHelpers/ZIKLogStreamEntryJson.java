@@ -5,11 +5,11 @@ import com.apigee.zettakit.ZIKTransition;
 import java.util.List;
 import java.util.Map;
 
-public class ZIKLogStreamEntryJson {
+public final class ZIKLogStreamEntryJson {
     String topic;
     String transition;
     Map<String,Object> properties;
-    List<?> inputs;
+    List inputs;
     List<ZIKTransition> actions;
     long timestamp;
 }

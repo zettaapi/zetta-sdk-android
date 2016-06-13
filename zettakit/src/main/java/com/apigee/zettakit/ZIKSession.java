@@ -8,7 +8,6 @@ import com.apigee.zettakit.interfaces.ZIKCallback;
 import com.apigee.zettakit.tasks.ZIKDevicesAsyncTask;
 import com.apigee.zettakit.tasks.ZIKRootAsyncTask;
 import com.apigee.zettakit.tasks.ZIKServersAsyncTask;
-import com.apigee.zettakit.utils.ZIKJsonUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -44,12 +43,11 @@ public class ZIKSession {
     }
 
     public void getRootSync(@NonNull final String url, @NonNull final ZIKCallback<ZIKRoot> rootCallback) {
-        Request request = this.requestBuilderWithURL(url).get().build();
         try {
+            Request request = this.requestBuilderWithURL(url).get().build();
             Response response = ZIKSession.httpClient.newCall(request).execute();
-            if( response.isSuccessful() ) {
-                rootCallback.onSuccess(ZIKJsonUtils.createObjectFromJson(ZIKRoot.class,response.body().string()));
-            }
+            ZIKRoot root = ZIKRoot.fromString(response.body().string());
+            rootCallback.onSuccess(root);
         } catch( Exception e ) {
             rootCallback.onFailure(e);
         }
@@ -65,12 +63,11 @@ public class ZIKSession {
         if( !serverLinks.isEmpty() ) {
             ArrayList<ZIKServer> loadedServers = new ArrayList<>();
             for( ZIKLink serverLink : serverLinks ) {
-                Request request = this.requestBuilderWithURL(serverLink.getHref()).get().build();
                 try {
+                    Request request = this.requestBuilderWithURL(serverLink.getHref()).get().build();
                     Response response = ZIKSession.httpClient.newCall(request).execute();
-                    if( response.isSuccessful() ) {
-                        loadedServers.add(ZIKJsonUtils.createObjectFromJson(ZIKServer.class,response.body().string()));
-                    }
+                    ZIKServer server = ZIKServer.fromString(response.body().string());
+                    loadedServers.add(server);
                 } catch( Exception exception ) {
                     serversCallback.onFailure(exception);
                     return;
@@ -96,12 +93,11 @@ public class ZIKSession {
             for( ZIKDevice serverDevice : serverDevices ) {
                 for( ZIKLink deviceLink : serverDevice.getLinks() ) {
                     if( deviceLink.isSelf() ) {
-                        Request request = this.requestBuilderWithURL(deviceLink.getHref()).get().build();
                         try {
+                            Request request = this.requestBuilderWithURL(deviceLink.getHref()).get().build();
                             Response response = ZIKSession.httpClient.newCall(request).execute();
-                            if( response.isSuccessful() ) {
-                                loadedDevices.add(ZIKJsonUtils.createObjectFromJson(ZIKDevice.class,response.body().string()));
-                            }
+                            ZIKDevice device = ZIKDevice.fromString(response.body().string());
+                            loadedDevices.add(device);
                         } catch( Exception exception ) {
                             devicesCallback.onFailure(exception);
                             return;
@@ -130,7 +126,7 @@ public class ZIKSession {
     }
 
     @NonNull
-    protected Request.Builder requestBuilderWithURL(@NonNull final String url) {
+    protected Request.Builder requestBuilderWithURL(@NonNull final String url) throws IllegalArgumentException {
         Request.Builder requestBuilder = new Request.Builder().url(url);
         this.addHeadersToRequest(requestBuilder);
         return requestBuilder;

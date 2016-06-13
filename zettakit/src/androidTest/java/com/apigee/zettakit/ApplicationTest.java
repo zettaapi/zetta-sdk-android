@@ -8,7 +8,6 @@ import android.test.ApplicationTestCase;
 import com.apigee.zettakit.interfaces.ZIKCallback;
 import com.apigee.zettakit.interfaces.ZIKStreamListener;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -76,12 +75,12 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
                     public void onSuccess(@NonNull List<ZIKServer> servers) {
                         if (!servers.isEmpty()) {
                             ZIKServer server = servers.get(1);
-                            ZIKDevice device = server.getDeviceNamed("Thermometer");
+                            ZIKDevice device = server.getDeviceNamed("Porch Light");
                             if( device != null ) {
                                 device.fetchAsync(new ZIKCallback<ZIKDevice>() {
                                     @Override
                                     public void onSuccess(@NonNull ZIKDevice device) {
-                                        final ZIKStream stream = device.stream("temperature");
+                                        final ZIKStream stream = device.stream("logs");
                                         if( stream != null ) {
                                             stream.setStreamListener(new ZIKStreamListener() {
                                                 @Override
@@ -90,16 +89,15 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
                                                 public void onPong() { }
 
                                                 @Override
-                                                public void onError(IOException exception, Response response) {
+                                                public void onError(Exception exception, Response response) {
                                                     throw new IllegalStateException("unexpected code path for this test");
                                                 }
 
                                                 @Override
                                                 public void onUpdate(Object object) {
-                                                    assertTrue(object instanceof ZIKStreamEntry);
-                                                    ZIKStreamEntry streamEntry = (ZIKStreamEntry) object;
-                                                    assertTrue(streamEntry.getData() instanceof Double);
-                                                    System.out.print(streamEntry.getData());
+                                                    assertTrue(object instanceof ZIKLogStreamEntry);
+                                                    ZIKLogStreamEntry streamEntry = (ZIKLogStreamEntry) object;
+                                                    System.out.print(streamEntry.getDeviceState());
                                                     stream.close();
                                                 }
 
