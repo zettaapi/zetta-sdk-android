@@ -6,17 +6,12 @@ import android.support.annotation.NonNull;
 
 import com.apigee.zettakit.interfaces.ZIKCallback;
 import com.apigee.zettakit.interfaces.ZIKFetchable;
-import com.apigee.zettakit.tasks.ZIKFetchAsyncTask;
 import com.apigee.zettakit.utils.ZIKJsonUtils;
 import com.apigee.zettakit.utils.ZIKUtils;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
-import okhttp3.Request;
-import okhttp3.Response;
 
 public class ZIKRoot implements Parcelable, ZIKFetchable<ZIKRoot> {
     private static final String SERVER_REL = ZIKUtils.generateRelForString("server");
@@ -33,7 +28,7 @@ public class ZIKRoot implements Parcelable, ZIKFetchable<ZIKRoot> {
     public String toString() { return ZIKJsonUtils.objectToJsonString(ZIKRoot.class,this); }
 
     @NonNull
-    public static ZIKRoot fromString(@NonNull final String string) throws IOException {
+    public static ZIKRoot fromString(@NonNull final String string) throws ZIKException {
         return ZIKJsonUtils.createObjectFromJson(ZIKRoot.class,string);
     }
 
@@ -62,13 +57,17 @@ public class ZIKRoot implements Parcelable, ZIKFetchable<ZIKRoot> {
     }
 
     @Override
-    public void fetchSync(@NonNull final ZIKCallback<ZIKRoot> callback) {
-        this.fetchSync(ZIKSession.getSharedSession(),callback);
+    public ZIKRoot fetchSync() throws ZIKException {
+        return this.fetchSync(ZIKSession.getSharedSession());
     }
 
     @Override
-    public void fetchSync(@NonNull final ZIKSession session, @NonNull final ZIKCallback<ZIKRoot> callback) {
-        new ZIKFetchAsyncTask<>(session,this,callback).execute();
+    public ZIKRoot fetchSync(@NonNull ZIKSession session) throws ZIKException {
+        try {
+            return session.getRootWithURL(this.selfLink.getHref());
+        } catch (Exception exception) {
+            throw new ZIKException(exception);
+        }
     }
 
     @Override
@@ -78,14 +77,7 @@ public class ZIKRoot implements Parcelable, ZIKFetchable<ZIKRoot> {
 
     @Override
     public void fetchAsync(@NonNull ZIKSession session, @NonNull ZIKCallback<ZIKRoot> callback) {
-        try {
-            Request request = session.requestBuilderWithURL(this.selfLink.getHref()).get().build();
-            Response response = ZIKSession.httpClient.newCall(request).execute();
-            ZIKRoot root = ZIKRoot.fromString(response.body().string());
-            callback.onSuccess(root);
-        } catch( Exception exception ) {
-            callback.onFailure(exception);
-        }
+        session.getRootAsync(this.selfLink.getHref(),callback);
     }
 
     @Override

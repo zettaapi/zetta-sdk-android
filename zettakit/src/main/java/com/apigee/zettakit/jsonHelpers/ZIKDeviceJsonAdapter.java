@@ -3,6 +3,7 @@ package com.apigee.zettakit.jsonHelpers;
 import android.support.annotation.NonNull;
 
 import com.apigee.zettakit.ZIKDevice;
+import com.apigee.zettakit.ZIKException;
 import com.apigee.zettakit.ZIKLink;
 import com.apigee.zettakit.ZIKStyle;
 import com.apigee.zettakit.ZIKTransition;
@@ -10,7 +11,6 @@ import com.apigee.zettakit.utils.ZIKJsonUtils;
 import com.squareup.moshi.FromJson;
 import com.squareup.moshi.ToJson;
 
-import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -37,7 +37,7 @@ public final class ZIKDeviceJsonAdapter {
         if( styleObject != null && styleObject instanceof Map ) {
             try {
                 style = ZIKJsonUtils.convertJsonMapToObject(ZIKStyle.class,(Map)styleObject);
-            } catch( IOException ignored ) {}
+            } catch( ZIKException ignored ) {}
         }
         return new ZIKDevice(propertiesMap,links,actions,style);
     }

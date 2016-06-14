@@ -7,7 +7,6 @@ import android.support.annotation.Nullable;
 
 import com.apigee.zettakit.utils.ZIKJsonUtils;
 
-import java.io.IOException;
 import java.util.Map;
 
 public class ZIKStyle implements Parcelable {
@@ -28,7 +27,7 @@ public class ZIKStyle implements Parcelable {
     public String toString() { return ZIKJsonUtils.objectToJsonString(ZIKStyle.class,this); }
 
     @NonNull
-    public ZIKStyle fromString(@NonNull final String string) throws IOException {
+    public ZIKStyle fromString(@NonNull final String string) throws ZIKException {
         return ZIKJsonUtils.createObjectFromJson(ZIKStyle.class,string);
     }
 
@@ -64,8 +63,8 @@ public class ZIKStyle implements Parcelable {
 
     @SuppressWarnings("unchecked")
     protected ZIKStyle(@NonNull final Parcel in) {
-        this.properties = ZIKJsonUtils.jsonStringToMap(in.readString());;
-        this.actions = ZIKJsonUtils.jsonStringToMap(in.readString());;
+        this.properties = ZIKJsonUtils.jsonStringToMap(in.readString());
+        this.actions = ZIKJsonUtils.jsonStringToMap(in.readString());
         this.backgroundColor = in.readParcelable(ZIKStyleColor.class.getClassLoader());
         this.foregroundColor = in.readParcelable(ZIKStyleColor.class.getClassLoader());
     }

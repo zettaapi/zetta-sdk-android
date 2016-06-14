@@ -3,6 +3,7 @@ package com.apigee.zettakit.utils;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
+import com.apigee.zettakit.ZIKException;
 import com.apigee.zettakit.jsonHelpers.ZIKDeviceJsonAdapter;
 import com.apigee.zettakit.jsonHelpers.ZIKLinkJsonAdapter;
 import com.apigee.zettakit.jsonHelpers.ZIKLogStreamEntryJsonAdapter;
@@ -39,12 +40,16 @@ public final class ZIKJsonUtils {
     }
 
     @NonNull
-    public static <T> T createObjectFromJson(@NonNull final Class<T> objectClass, @NonNull final String jsonString) throws IOException {
-        return ZIKJsonUtils.jsonAdapter(objectClass).fromJson(jsonString);
+    public static <T> T createObjectFromJson(@NonNull final Class<T> objectClass, @NonNull final String jsonString) throws ZIKException {
+        try {
+            return ZIKJsonUtils.jsonAdapter(objectClass).fromJson(jsonString);
+        } catch( IOException e ) {
+            throw new ZIKException(e);
+        }
     }
 
     @NonNull
-    public static <T> T convertJsonMapToObject(@NonNull final Class<T> objectClass, @NonNull final Map jsonMap) throws IOException {
+    public static <T> T convertJsonMapToObject(@NonNull final Class<T> objectClass, @NonNull final Map jsonMap) throws ZIKException {
         return ZIKJsonUtils.createObjectFromJson(objectClass,ZIKJsonUtils.mapToJsonString(jsonMap));
     }
 

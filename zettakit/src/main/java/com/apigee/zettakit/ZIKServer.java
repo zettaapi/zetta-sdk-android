@@ -7,15 +7,12 @@ import android.support.annotation.Nullable;
 
 import com.apigee.zettakit.interfaces.ZIKCallback;
 import com.apigee.zettakit.interfaces.ZIKFetchable;
-import com.apigee.zettakit.tasks.ZIKFetchAsyncTask;
 import com.apigee.zettakit.utils.ZIKJsonUtils;
 
-import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-
-import okhttp3.Request;
-import okhttp3.Response;
 
 public class ZIKServer implements Parcelable, ZIKFetchable<ZIKServer> {
     private static final String NAME = "name";
@@ -40,7 +37,7 @@ public class ZIKServer implements Parcelable, ZIKFetchable<ZIKServer> {
     public String toString() { return ZIKJsonUtils.objectToJsonString(ZIKServer.class,this); }
 
     @NonNull
-    public static ZIKServer fromString(@NonNull final String string) throws IOException {
+    public static ZIKServer fromString(@NonNull final String string) throws ZIKException {
         return ZIKJsonUtils.createObjectFromJson(ZIKServer.class,string);
     }
 
@@ -59,36 +56,52 @@ public class ZIKServer implements Parcelable, ZIKFetchable<ZIKServer> {
     }
 
     @Override
+    public ZIKServer fetchSync() throws ZIKException {
+        return this.fetchSync(ZIKSession.getSharedSession());
+    }
+
+    @Override
+    public ZIKServer fetchSync(@NonNull ZIKSession session) throws ZIKException {
+        try {
+            return session.getServerWithLink(this.getSelfLink());
+        } catch ( Exception exception ) {
+            throw new ZIKException(exception);
+        }
+    }
+
+    @Override
     public void fetchAsync(@NonNull ZIKCallback<ZIKServer> callback) {
         this.fetchAsync(ZIKSession.getSharedSession(),callback);
     }
 
     @Override
-    public void fetchAsync(@NonNull final ZIKSession session, @NonNull final ZIKCallback<ZIKServer> callback) {
-        new ZIKFetchAsyncTask<>(session,this,callback).execute();
-    }
-
-    @Override
-    public void fetchSync(@NonNull ZIKCallback<ZIKServer> callback) {
-        this.fetchSync(ZIKSession.getSharedSession(),callback);
-    }
-
-    @Override
-    public void fetchSync(@NonNull final ZIKSession session, @NonNull final ZIKCallback<ZIKServer> serverCallback) {
-        for( ZIKLink serverLink : this.getLinks() ) {
-            if( serverLink.isSelf() ) {
-                try {
-                    Request request = session.requestBuilderWithURL(serverLink.getHref()).get().build();
-                    Response response = ZIKSession.httpClient.newCall(request).execute();
-                    ZIKServer server = ZIKServer.fromString(response.body().string());
-                    serverCallback.onSuccess(server);
-                } catch( Exception exception ) {
-                    serverCallback.onFailure(exception);
+    public void fetchAsync(@NonNull final ZIKSession session, @NonNull final ZIKCallback<ZIKServer> serverCallback) {
+        session.getServersAsync(Collections.singletonList(this.getSelfLink()), new ZIKCallback<List<ZIKServer>>() {
+            @Override
+            public void onSuccess(@NonNull List<ZIKServer> result) {
+                if( !result.isEmpty() ){
+                    serverCallback.onSuccess(result.get(0));
+                } else {
+                    serverCallback.onFailure(new ZIKException("Server fetch returned no device data."));
                 }
-                return;
+            }
+            @Override
+            public void onFailure(@NonNull ZIKException exception) {
+                serverCallback.onFailure(exception);
+            }
+        });
+    }
+
+    @NonNull
+    public ZIKLink getSelfLink() {
+        ZIKLink selfLink = new ZIKLink("",null,null);
+        for( ZIKLink link : this.getLinks() ) {
+            if( link.isSelf() ) {
+                selfLink = link;
+                break;
             }
         }
-        serverCallback.onFailure(new IOException("No self link for device found."));
+        return selfLink;
     }
 
     @Nullable
@@ -101,6 +114,19 @@ public class ZIKServer implements Parcelable, ZIKFetchable<ZIKServer> {
             }
         }
         return deviceForName;
+    }
+
+    @NonNull
+    public List<ZIKLink> getAllDeviceSelfLinks() {
+        ArrayList<ZIKLink> deviceLinks = new ArrayList<>();
+        for( ZIKDevice serverDevice : this.getDevices() ) {
+            for( ZIKLink deviceLink : serverDevice.getLinks() ) {
+                if( deviceLink.isSelf() ) {
+                    deviceLinks.add(deviceLink);
+                }
+            }
+        }
+        return deviceLinks;
     }
 
     @Override

@@ -4,8 +4,6 @@ import android.support.annotation.NonNull;
 
 import com.apigee.zettakit.utils.ZIKJsonUtils;
 
-import java.io.IOException;
-
 public class ZIKStreamEntry {
     @NonNull private final String topic;
     @NonNull private final Object data;
@@ -19,7 +17,7 @@ public class ZIKStreamEntry {
     public String toString() { return ZIKJsonUtils.objectToJsonString(ZIKStreamEntry.class,this); }
 
     @NonNull
-    public static ZIKStreamEntry fromString(@NonNull final String string) throws IOException {
+    public static ZIKStreamEntry fromString(@NonNull final String string) throws ZIKException {
         return ZIKJsonUtils.createObjectFromJson(ZIKStreamEntry.class,string);
     }
 

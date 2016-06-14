@@ -40,7 +40,7 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
                                     signal.countDown();
                                 }
                                 @Override
-                                public void onFailure(@NonNull Exception exception) {
+                                public void onFailure(@NonNull ZIKException exception) {
                                     throw new IllegalStateException("unexpected code path for this test");
                                 }
                             });
@@ -49,18 +49,29 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
                         }
                     }
                     @Override
-                    public void onFailure(@NonNull Exception exception) {
+                    public void onFailure(@NonNull ZIKException exception) {
                         throw new IllegalStateException("unexpected code path for this test");
                     }
                 });
             }
 
             @Override
-            public void onFailure(@NonNull Exception exception) {
+            public void onFailure(@NonNull ZIKException exception) {
                 throw new IllegalStateException("unexpected code path for this test" + exception.toString());
             }
         });
         signal.await(120, TimeUnit.SECONDS);
+    }
+
+    public void testObservablePattern() {
+        try {
+            final ZIKSession sharedSession = ZIKSession.getSharedSession();
+            ZIKRoot root = sharedSession.getRootSync("http://stage.zettaapi.org");
+            List<ZIKServer> serverList = sharedSession.getServersSync(root);
+            List<ZIKDevice> deviceList = sharedSession.getDevicesSync(serverList.get(1));
+        } catch( Exception exception ) {
+            throw new IllegalStateException("unexpected code path for this test" + exception.toString());
+        }
     }
 
     public void testZIKStream() throws InterruptedException {
@@ -89,7 +100,7 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
                                                 public void onPong() { }
 
                                                 @Override
-                                                public void onError(Exception exception, Response response) {
+                                                public void onError(ZIKException exception, Response response) {
                                                     throw new IllegalStateException("unexpected code path for this test");
                                                 }
 
@@ -111,7 +122,7 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
                                     }
 
                                     @Override
-                                    public void onFailure(@NonNull Exception exception) {
+                                    public void onFailure(@NonNull ZIKException exception) {
                                         signal.countDown();
                                     }
                                 });
@@ -121,14 +132,14 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
                         }
                     }
                     @Override
-                    public void onFailure(@NonNull Exception exception) {
+                    public void onFailure(@NonNull ZIKException exception) {
                         throw new IllegalStateException("unexpected code path for this test");
                     }
                 });
             }
 
             @Override
-            public void onFailure(@NonNull Exception exception) {
+            public void onFailure(@NonNull ZIKException exception) {
                 throw new IllegalStateException("unexpected code path for this test" + exception.toString());
             }
         });
@@ -151,7 +162,7 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
             }
 
             @Override
-            public void onFailure(@NonNull Exception exception) {
+            public void onFailure(@NonNull ZIKException exception) {
                 throw new IllegalStateException("unexpected code path for this test" + exception.toString());
             }
         });
@@ -182,14 +193,14 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
                         }
                     }
                     @Override
-                    public void onFailure(@NonNull Exception exception) {
+                    public void onFailure(@NonNull ZIKException exception) {
                         throw new IllegalStateException("unexpected code path for this test");
                     }
                 });
             }
 
             @Override
-            public void onFailure(@NonNull Exception exception) {
+            public void onFailure(@NonNull ZIKException exception) {
                 throw new IllegalStateException("unexpected code path for this test" + exception.toString());
             }
         });
@@ -222,7 +233,7 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
                                     signal.countDown();
                                 }
                                 @Override
-                                public void onFailure(@NonNull Exception exception) {
+                                public void onFailure(@NonNull ZIKException exception) {
                                     throw new IllegalStateException("unexpected code path for this test");
                                 }
                             });
@@ -231,14 +242,14 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
                         }
                     }
                     @Override
-                    public void onFailure(@NonNull Exception exception) {
+                    public void onFailure(@NonNull ZIKException exception) {
                         throw new IllegalStateException("unexpected code path for this test");
                     }
                 });
             }
 
             @Override
-            public void onFailure(@NonNull Exception exception) {
+            public void onFailure(@NonNull ZIKException exception) {
                 throw new IllegalStateException("unexpected code path for this test" + exception.toString());
             }
         });

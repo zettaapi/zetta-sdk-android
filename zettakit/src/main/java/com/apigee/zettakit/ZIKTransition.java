@@ -49,7 +49,7 @@ public class ZIKTransition implements Parcelable {
     }
 
     @NonNull
-    public Request requestForTransition(@NonNull final Map<String,Object> args) throws IllegalArgumentException {
+    public Request requestForTransition(@NonNull final Map<String,Object> args) throws ZIKException {
         Request.Builder requestBuilder = ZIKSession.getSharedSession().requestBuilderWithURL(this.getHref());
 
         HashMap<String,Object> requestDataMap = new HashMap<>();
@@ -65,10 +65,14 @@ public class ZIKTransition implements Parcelable {
             } catch (UnsupportedEncodingException ignored) {}
         }
 
-        String requestDataString = ZIKUtils.concatStrings(encodedParams,"&");
-        requestBuilder.header("Content-Length",Integer.toString(requestDataString.length()));
-        requestBuilder.method(this.method, RequestBody.create(MediaType.parse(this.getType()),requestDataString));
-        return requestBuilder.build();
+        try {
+            String requestDataString = ZIKUtils.concatStrings(encodedParams,"&");
+            requestBuilder.header("Content-Length",Integer.toString(requestDataString.length()));
+            requestBuilder.method(this.method, RequestBody.create(MediaType.parse(this.getType()),requestDataString));
+            return requestBuilder.build();
+        } catch (Exception e) {
+            throw new ZIKException(e);
+        }
     }
 
     @Override

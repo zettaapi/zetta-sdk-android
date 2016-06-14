@@ -102,7 +102,7 @@ public class ZIKStream implements Parcelable {
             } catch ( IllegalArgumentException exception ) {
                 ZIKStream.this.streamState = ZIKStreamState.CLOSED;
                 if( streamListener != null ) {
-                    streamListener.onError(exception,null);
+                    streamListener.onError(new ZIKException(exception),null);
                 }
                 return;
             }
@@ -125,32 +125,34 @@ public class ZIKStream implements Parcelable {
                     ZIKStream.this.cancelPingTimer();
                     ZIKStream.this.webSocket = null;
                     if( streamListener != null ) {
-                        streamListener.onError(e,response);
+                        streamListener.onError(new ZIKException(e),response);
                     }
                 }
 
                 @Override
                 public void onMessage(ResponseBody message) throws IOException {
-                    String messageString = message.string();
-                    message.close();
-
-                    if( streamListener != null ) {
-                        final ZIKLink link = ZIKStream.this.link;
-                        final String linkTitle = link.getTitle();
-                        try {
-                            if( linkTitle != null && linkTitle.equalsIgnoreCase("logs") ) {
+                    try {
+                        if( streamListener != null ) {
+                            final String messageString = message.string();
+                            final ZIKLink link = ZIKStream.this.link;
+                            final String linkTitle = link.getTitle();
+                            if (linkTitle != null && linkTitle.equalsIgnoreCase("logs")) {
                                 ZIKLogStreamEntry logStreamEntry = ZIKLogStreamEntry.fromString(messageString);
                                 streamListener.onUpdate(logStreamEntry);
-                            } else if( link.hasRel("http://rels.zettajs.io/query") ) {
+                            } else if (link.hasRel("http://rels.zettajs.io/query")) {
                                 ZIKDevice device = ZIKDevice.fromString(messageString);
                                 streamListener.onUpdate(device);
                             } else {
                                 ZIKStreamEntry streamEntry = ZIKStreamEntry.fromString(messageString);
                                 streamListener.onUpdate(streamEntry);
                             }
-                        } catch (Exception exception) {
-                            streamListener.onError(exception,null);
                         }
+                    } catch (Exception exception) {
+                        if(streamListener != null) {
+                            streamListener.onError(new ZIKException(exception),null);
+                        }
+                    } finally {
+                        message.close();
                     }
                 }
 

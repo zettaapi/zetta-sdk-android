@@ -7,7 +7,6 @@ import android.support.annotation.Nullable;
 
 import com.apigee.zettakit.utils.ZIKJsonUtils;
 
-import java.io.IOException;
 import java.util.List;
 
 public class ZIKLink implements Parcelable {
@@ -27,7 +26,7 @@ public class ZIKLink implements Parcelable {
     public String toString() { return ZIKJsonUtils.objectToJsonString(ZIKLink.class,this); }
 
     @NonNull
-    public static ZIKLink fromString(@NonNull final String string) throws IOException {
+    public static ZIKLink fromString(@NonNull final String string) throws ZIKException {
         return ZIKJsonUtils.createObjectFromJson(ZIKLink.class,string);
     }
 
