@@ -30,19 +30,19 @@ public class ZIKStreamEntry {
     }
 
     @NonNull
-    public String getName(String topic) {
+    public String getName() {
         return topic.substring(0, topic.indexOf("/"));
     }
 
     @NonNull
-    public UUID getUUID(String topic) {
+    public UUID getUUID() {
         int positionFirstBreak = topic.indexOf("/");
         int positionSecondBreak = topic.indexOf("/", positionFirstBreak + 1);
         return UUID.fromString(topic.substring(positionFirstBreak + 1, positionSecondBreak - 1));
     }
 
     @NonNull
-    public String getTitle(String topic) {
+    public String getTitle() {
         int positionThirdBreak = topic.lastIndexOf("/");
         return topic.substring(positionThirdBreak + 1, topic.length());
     }
