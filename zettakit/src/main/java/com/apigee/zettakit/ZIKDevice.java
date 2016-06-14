@@ -112,7 +112,14 @@ public class ZIKDevice implements Parcelable, ZIKFetchable<ZIKDevice> {
     }
 
     public void transition(@NonNull final ZIKTransition transition, @NonNull final Map<String,Object> arguments, @NonNull final ZIKCallback<ZIKDevice> deviceCallback) {
-        Request request = transition.requestForTransition(arguments);
+        Request request;
+        try {
+            request = transition.requestForTransition(arguments);
+        } catch (IllegalArgumentException exception) {
+            deviceCallback.onFailure(exception);
+            return;
+        }
+
         ZIKSession.httpClient.newCall(request).enqueue(new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
@@ -121,7 +128,7 @@ public class ZIKDevice implements Parcelable, ZIKFetchable<ZIKDevice> {
             @Override
             public void onResponse(Call call, Response response) throws IOException {
                 try {
-                    ZIKDevice device = ZIKJsonUtils.createObjectFromJson(ZIKDevice.class,response.body().string());
+                    ZIKDevice device = ZIKDevice.fromString(response.body().toString());
                     deviceCallback.onSuccess(device);
                 } catch (IOException exception) {
                     deviceCallback.onFailure(exception);
@@ -137,7 +144,7 @@ public class ZIKDevice implements Parcelable, ZIKFetchable<ZIKDevice> {
 
     @Override
     public void fetchAsync(@NonNull final ZIKSession session, @NonNull final ZIKCallback<ZIKDevice> deviceCallback) {
-        new ZIKFetchAsyncTask<ZIKDevice>(session,this,deviceCallback).execute();
+        new ZIKFetchAsyncTask<>(session,this,deviceCallback).execute();
     }
 
     @Override
@@ -218,11 +225,7 @@ public class ZIKDevice implements Parcelable, ZIKFetchable<ZIKDevice> {
         this.name = in.readString();
         this.state = in.readString();
         this.style = in.readParcelable(ZIKStyle.class.getClassLoader());
-        Map<String,Object> properties = new HashMap<>();
-        try {
-            properties = (Map<String,Object>)ZIKJsonUtils.createObjectFromJson(Map.class,in.readString());
-        } catch (IOException ignored) { }
-        this.properties = properties;
+        this.properties = ZIKJsonUtils.jsonStringToMap(in.readString());
         this.links = in.createTypedArrayList(ZIKLink.CREATOR);
         this.streamLinks = in.createTypedArrayList(ZIKLink.CREATOR);
         this.transitions = in.createTypedArrayList(ZIKTransition.CREATOR);

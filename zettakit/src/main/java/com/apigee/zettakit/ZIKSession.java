@@ -132,7 +132,7 @@ public class ZIKSession {
         return requestBuilder;
     }
 
-    protected void addHeadersToRequest(@NonNull final Request.Builder requestBuilder) {
+    private void addHeadersToRequest(@NonNull final Request.Builder requestBuilder) {
         for(Map.Entry<String,Object> headerEntry : this.headers.entrySet()) {
             String headerKey = headerEntry.getKey();
             String headerValue = headerEntry.getValue().toString();

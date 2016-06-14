@@ -7,7 +7,6 @@ import android.support.annotation.NonNull;
 import com.apigee.zettakit.utils.ZIKJsonUtils;
 import com.apigee.zettakit.utils.ZIKUtils;
 
-import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
@@ -20,6 +19,8 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 
 public class ZIKTransition implements Parcelable {
+    private static final String UTF8_CHARSET_NAME = "UTF-8";
+
     @NonNull private final String href;
     @NonNull private final String name;
     @NonNull private final String method;
@@ -48,9 +49,8 @@ public class ZIKTransition implements Parcelable {
     }
 
     @NonNull
-    public Request requestForTransition(@NonNull final Map<String,Object> args) {
-        Request.Builder requestBuilder = new Request.Builder().url(this.getHref());
-        ZIKSession.getSharedSession().addHeadersToRequest(requestBuilder);
+    public Request requestForTransition(@NonNull final Map<String,Object> args) throws IllegalArgumentException {
+        Request.Builder requestBuilder = ZIKSession.getSharedSession().requestBuilderWithURL(this.getHref());
 
         HashMap<String,Object> requestDataMap = new HashMap<>();
         requestDataMap.putAll(args);
@@ -59,8 +59,8 @@ public class ZIKTransition implements Parcelable {
         ArrayList<String> encodedParams = new ArrayList<>();
         for( Map.Entry<String,Object> mapEntry : requestDataMap.entrySet() ) {
             try {
-                String keyString = URLEncoder.encode(mapEntry.getKey(),"UTF-8");
-                String valueString = URLEncoder.encode(mapEntry.getValue().toString(),"UTF-8");
+                String keyString = URLEncoder.encode(mapEntry.getKey(),UTF8_CHARSET_NAME);
+                String valueString = URLEncoder.encode(mapEntry.getValue().toString(),UTF8_CHARSET_NAME);
                 encodedParams.add(keyString + "=" + valueString);
             } catch (UnsupportedEncodingException ignored) {}
         }
@@ -91,11 +91,7 @@ public class ZIKTransition implements Parcelable {
         this.name = in.readString();
         this.method = in.readString();
         this.type = in.readString();
-        List<Map<String, Object>> fields = new ArrayList<>();
-        try {
-            fields = ZIKJsonUtils.createObjectFromJson(List.class,in.readString());
-        } catch (IOException ignored) {}
-        this.fields = fields;
+        this.fields = ZIKJsonUtils.jsonStringToList(in.readString());
     }
 
     public static final Parcelable.Creator<ZIKTransition> CREATOR = new Parcelable.Creator<ZIKTransition>() {

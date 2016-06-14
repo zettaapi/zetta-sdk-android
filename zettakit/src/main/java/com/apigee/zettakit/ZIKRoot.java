@@ -68,7 +68,7 @@ public class ZIKRoot implements Parcelable, ZIKFetchable<ZIKRoot> {
 
     @Override
     public void fetchSync(@NonNull final ZIKSession session, @NonNull final ZIKCallback<ZIKRoot> callback) {
-        new ZIKFetchAsyncTask<ZIKRoot>(session,this,callback).execute();
+        new ZIKFetchAsyncTask<>(session,this,callback).execute();
     }
 
     @Override
@@ -104,11 +104,7 @@ public class ZIKRoot implements Parcelable, ZIKFetchable<ZIKRoot> {
     protected ZIKRoot(@NonNull final Parcel in) {
         this.selfLink = in.readParcelable(ZIKLink.class.getClassLoader());
         this.links = in.createTypedArrayList(ZIKLink.CREATOR);
-        List<Map<String,Object>> actions = new ArrayList<>();
-        try {
-            actions = ZIKJsonUtils.createObjectFromJson(List.class,in.readString());
-        } catch( IOException ignored ) {}
-        this.actions = actions;
+        this.actions = ZIKJsonUtils.jsonStringToList(in.readString());
     }
 
     public static final Parcelable.Creator<ZIKRoot> CREATOR = new Parcelable.Creator<ZIKRoot>() {

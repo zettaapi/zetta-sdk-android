@@ -1,6 +1,7 @@
 package com.apigee.zettakit.utils;
 
 import android.support.annotation.NonNull;
+import android.util.Log;
 
 import com.apigee.zettakit.jsonHelpers.ZIKDeviceJsonAdapter;
 import com.apigee.zettakit.jsonHelpers.ZIKLinkJsonAdapter;
@@ -14,6 +15,7 @@ import com.squareup.moshi.JsonAdapter;
 import com.squareup.moshi.Moshi;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -32,7 +34,7 @@ public final class ZIKJsonUtils {
         moshi = moshiBuilder.build();
     }
 
-    public static <T> JsonAdapter<T> jsonAdapter(@NonNull final Class<T> objectClass) {
+    private static <T> JsonAdapter<T> jsonAdapter(@NonNull final Class<T> objectClass) {
         return moshi.adapter(objectClass);
     }
 
@@ -47,12 +49,37 @@ public final class ZIKJsonUtils {
     }
 
     @NonNull
+    public static <T> String objectToJsonString(@NonNull final Class<T> objectClass, @NonNull final T object) {
+        return ZIKJsonUtils.jsonAdapter(objectClass).toJson(object);
+    }
+
+    @NonNull
     public static String mapToJsonString(@NonNull final Map jsonMap) {
         return ZIKJsonUtils.objectToJsonString(Map.class,jsonMap);
     }
 
-    public static <T> String objectToJsonString(@NonNull final Class<T> objectClass, @NonNull final T object) {
-        return ZIKJsonUtils.jsonAdapter(objectClass).toJson(object);
+    @NonNull
+    public static Map jsonStringToMap(@NonNull final String string) {
+        Map map;
+        try {
+            map = ZIKJsonUtils.jsonAdapter(Map.class).fromJson(string);
+        } catch (IOException exception) {
+            Log.e("ZIKJsonUtils","Error converting JSON string to Map: " + exception.toString());
+            map = Collections.emptyMap();
+        }
+        return map;
+    }
+
+    @NonNull
+    public static List jsonStringToList(@NonNull final String string) {
+        List list;
+        try {
+            list = ZIKJsonUtils.jsonAdapter(List.class).fromJson(string);
+        } catch (IOException exception) {
+            Log.e("ZIKJsonUtils","Error converting JSON string to List: " + exception.toString());
+            list = Collections.emptyList();
+        }
+        return list;
     }
 
     @NonNull

@@ -16,6 +16,7 @@ public class ZIKStyleColor implements Parcelable {
     private static final String BLUE = "blue";
 
     private static int DEFAULT_COLOR = Color.BLACK;
+    public static int getDefaultColor() { return DEFAULT_COLOR; }
     public static void setDefaultColor(final int color) { ZIKStyleColor.DEFAULT_COLOR = color; }
 
     @NonNull private final String hex;

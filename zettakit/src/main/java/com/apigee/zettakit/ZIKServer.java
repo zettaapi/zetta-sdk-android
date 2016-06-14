@@ -11,7 +11,6 @@ import com.apigee.zettakit.tasks.ZIKFetchAsyncTask;
 import com.apigee.zettakit.utils.ZIKJsonUtils;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -66,7 +65,7 @@ public class ZIKServer implements Parcelable, ZIKFetchable<ZIKServer> {
 
     @Override
     public void fetchAsync(@NonNull final ZIKSession session, @NonNull final ZIKCallback<ZIKServer> callback) {
-        new ZIKFetchAsyncTask<ZIKServer>(session,this,callback).execute();
+        new ZIKFetchAsyncTask<>(session,this,callback).execute();
     }
 
     @Override
@@ -121,11 +120,7 @@ public class ZIKServer implements Parcelable, ZIKFetchable<ZIKServer> {
 
     @SuppressWarnings("unchecked")
     protected ZIKServer(@NonNull final Parcel in) {
-        Map<String,Object> properties = new HashMap<>();
-        try {
-            properties = ZIKJsonUtils.createObjectFromJson(Map.class,in.readString());
-        } catch( IOException ignored ) {}
-        this.properties = properties;
+        this.properties = ZIKJsonUtils.jsonStringToMap(in.readString());
         this.name = in.readString();
         this.style = in.readParcelable(ZIKStyle.class.getClassLoader());
         this.devices = in.createTypedArrayList(ZIKDevice.CREATOR);
