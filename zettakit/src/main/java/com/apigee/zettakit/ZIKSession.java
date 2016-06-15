@@ -34,6 +34,11 @@ public class ZIKSession {
     }
     @NonNull private HashMap<String,Object> headers = new HashMap<>();
 
+    static {
+        httpClient.dispatcher().setMaxRequests(Integer.MAX_VALUE);
+        httpClient.dispatcher().setMaxRequestsPerHost(Integer.MAX_VALUE);
+    }
+
     public static void init(@NonNull final Context context) {
         ZIKSession.appContext = context.getApplicationContext();
     }
