@@ -1,6 +1,5 @@
 package com.apigee.zettakit;
 
-public class StreamTest {
 import android.app.Application;
 import android.support.annotation.NonNull;
 import android.test.ApplicationTestCase;
@@ -95,5 +94,95 @@ public class StreamTest extends ApplicationTestCase<Application> {
             }
         });
         signal.await(120, TimeUnit.SECONDS);
+    }
+
+    public void testMultiZIKStream() throws InterruptedException {
+        final CountDownLatch threadSignal = new CountDownLatch(1);
+
+        final int[] totalExpectedStreams = {0};
+        final int[] totalStreamCount = {0};
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                ZIKSession sharedSession = ZIKSession.getSharedSession();
+                ZIKRoot zikRoot = sharedSession.getRootSync("http://stage.zettaapi.org");
+                List<ZIKServer> zikServers = sharedSession.getServersSync(zikRoot);
+
+                int totalAvailableStreams = 0;
+                for (ZIKServer zikServer : zikServers) {
+                    for (ZIKDevice zikDevice : zikServer.getDevices()) {
+                        zikDevice = zikDevice.fetchSync();
+                        for (ZIKStream zikStream : zikDevice.getAllStreams()) {
+                            if (zikStream.getTitle().equals("logs")) {
+                                continue;
+                            }
+                            totalAvailableStreams++;
+                        }
+                    }
+                }
+                totalExpectedStreams[0] = totalAvailableStreams;
+
+                if (zikServers.isEmpty()) {
+                    throw new IllegalStateException("unexpected code path for this test");
+                }
+                final List<ZIKStream> streams = new ArrayList<ZIKStream>();
+                for (ZIKServer zikServer : zikServers) {
+                    for (ZIKDevice zikDevice : zikServer.getDevices()) {
+                        zikDevice = zikDevice.fetchSync();
+                        for (final ZIKStream zikStream : zikDevice.getAllStreams()) {
+                            if (zikStream.getTitle().equals("logs")) {
+                                continue;
+                            }
+//                            zikStream = zikDevice.stream(zikStream.getTitle());
+                            zikStream.setStreamListener(new ZIKStreamListener() {
+                                @Override
+                                public void onOpen() {
+                                    totalStreamCount[0]++;
+//                                    zikStream.close();
+                                    streams.add(zikStream);
+                                }
+
+                                @Override
+                                public void onPong() {
+                                    // not used
+                                }
+
+                                @Override
+                                public void onUpdate(Object object) {
+                                    Log.d("xxx", "update");
+                                }
+
+                                @Override
+                                public void onClose() {
+                                    Log.d("xxx", "close");
+                                    if (totalStreamCount[0] == totalExpectedStreams[0]) {
+//                                        for (ZIKStream stream : streams) {
+//                                            stream.close();
+//                                        }
+                                        threadSignal.countDown();
+                                    }
+                                }
+
+                                @Override
+                                public void onError(ZIKException exception, Response response) {
+                                    throw new IllegalStateException("unexpected code path for this test ", exception);
+                                }
+                            });
+                            zikStream.resume();
+
+                        }
+                    }
+                }
+            }
+        }).start();
+
+        try {
+            threadSignal.await(120, TimeUnit.SECONDS);
+        } catch (Exception e) {
+            // ingore timeouts
+        }
+
+        Log.d("xxx", "total: " + totalStreamCount[0]);
+        assertEquals(totalExpectedStreams[0], totalStreamCount[0]);
     }
 }
