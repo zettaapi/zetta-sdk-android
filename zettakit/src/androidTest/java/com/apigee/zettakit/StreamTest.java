@@ -8,7 +8,6 @@ import android.util.Log;
 import com.apigee.zettakit.interfaces.ZIKCallback;
 import com.apigee.zettakit.interfaces.ZIKStreamListener;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -96,7 +95,7 @@ public class StreamTest extends ApplicationTestCase<Application> {
         signal.await(120, TimeUnit.SECONDS);
     }
 
-    public void testMultiZIKStream() throws InterruptedException {
+    public void testMultiSimultaneousZIKStream() throws InterruptedException {
         final CountDownLatch threadSignal = new CountDownLatch(1);
 
         final int[] totalExpectedStreams = {0};
@@ -125,7 +124,6 @@ public class StreamTest extends ApplicationTestCase<Application> {
                 if (zikServers.isEmpty()) {
                     throw new IllegalStateException("unexpected code path for this test");
                 }
-                final List<ZIKStream> streams = new ArrayList<ZIKStream>();
                 for (ZIKServer zikServer : zikServers) {
                     for (ZIKDevice zikDevice : zikServer.getDevices()) {
                         zikDevice = zikDevice.fetchSync();
@@ -133,13 +131,10 @@ public class StreamTest extends ApplicationTestCase<Application> {
                             if (zikStream.getTitle().equals("logs")) {
                                 continue;
                             }
-//                            zikStream = zikDevice.stream(zikStream.getTitle());
                             zikStream.setStreamListener(new ZIKStreamListener() {
                                 @Override
                                 public void onOpen() {
                                     totalStreamCount[0]++;
-//                                    zikStream.close();
-                                    streams.add(zikStream);
                                 }
 
                                 @Override
@@ -149,16 +144,12 @@ public class StreamTest extends ApplicationTestCase<Application> {
 
                                 @Override
                                 public void onUpdate(Object object) {
-                                    Log.d("xxx", "update");
+                                    // not used
                                 }
 
                                 @Override
                                 public void onClose() {
-                                    Log.d("xxx", "close");
                                     if (totalStreamCount[0] == totalExpectedStreams[0]) {
-//                                        for (ZIKStream stream : streams) {
-//                                            stream.close();
-//                                        }
                                         threadSignal.countDown();
                                     }
                                 }
