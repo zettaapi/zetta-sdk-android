@@ -5,6 +5,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import com.apigee.zettakit.interfaces.ZIKCallback;
+import com.apigee.zettakit.utils.ZIKJsonUtils;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -212,23 +213,23 @@ public class ZIKSession {
 
     @NonNull
     protected ZIKRoot getRootWithURL(@NonNull final String url) throws Exception {
-        Request request = ZIKSession.this.requestBuilderWithURL(url).get().build();
-        Response response = ZIKSession.performRequest(request);
-        return ZIKRoot.fromString(response.body().string());
+        return this.getObjectWithUrl(ZIKRoot.class,url);
     }
 
     @NonNull
     protected ZIKServer getServerWithLink(@NonNull final ZIKLink serverLink) throws Exception {
-        Request request = this.requestBuilderWithURL(serverLink.getHref()).get().build();
-        Response response = ZIKSession.performRequest(request);
-        return ZIKServer.fromString(response.body().string());
+        return this.getObjectWithUrl(ZIKServer.class,serverLink.getHref());
     }
 
     @NonNull
     protected ZIKDevice getDeviceWithLink(@NonNull final ZIKLink deviceLink) throws Exception {
-        Request request = this.requestBuilderWithURL(deviceLink.getHref()).get().build();
-        Response response = ZIKSession.performRequest(request);
-        return ZIKDevice.fromString(response.body().string());
+        return this.getObjectWithUrl(ZIKDevice.class,deviceLink.getHref());
+    }
+
+    protected <T> T getObjectWithUrl(@NonNull final Class<T> objectClass, @NonNull final String url) throws Exception {
+        Request request = this.requestBuilderWithURL(url).get().build();
+        Response response = performRequest(request);
+        return ZIKJsonUtils.createObjectFromJson(objectClass,response.body().string());
     }
 
     private void addHeadersToRequest(@NonNull final Request.Builder requestBuilder) {

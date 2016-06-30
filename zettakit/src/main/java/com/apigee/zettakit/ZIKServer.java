@@ -82,7 +82,7 @@ public class ZIKServer implements Parcelable, ZIKFetchable<ZIKServer> {
                 if( !result.isEmpty() ){
                     serverCallback.onSuccess(result.get(0));
                 } else {
-                    serverCallback.onFailure(new ZIKException("Server fetch returned no device data."));
+                    serverCallback.onFailure(new ZIKException("Server fetch returned no server data."));
                 }
             }
             @Override
