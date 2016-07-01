@@ -79,10 +79,13 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
                                     @Override
                                     public void onSuccess(@NonNull ZIKDevice result) {
                                         HashMap<String,Object> brightnessMap = new HashMap<>();
-                                        brightnessMap.put("brightness",Math.random());
+                                        final Double newBrightness = Math.random();
+                                        brightnessMap.put("brightness",newBrightness);
                                         result.transition("set-brightness", brightnessMap,  new ZIKCallback<ZIKDevice>() {
                                             @Override
                                             public void onSuccess(@NonNull ZIKDevice result) {
+                                                Double resultBrightness = Double.parseDouble((String)result.getProperties().get("brightness"));
+                                                assertTrue(newBrightness.equals(resultBrightness));
                                                 signal.countDown();
                                             }
                                             @Override
