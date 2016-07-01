@@ -127,7 +127,8 @@ public class ZIKDevice implements Parcelable, ZIKFetchable<ZIKDevice> {
             @Override
             public void onResponse(Call call, Response response) throws IOException {
                 try {
-                    ZIKDevice device = ZIKDevice.fromString(response.body().toString());
+                    String responseString = response.body().string();
+                    ZIKDevice device = ZIKDevice.fromString(responseString);
                     deviceCallback.onSuccess(device);
                 } catch (ZIKException exception) {
                     deviceCallback.onFailure(exception);
