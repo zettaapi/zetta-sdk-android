@@ -205,6 +205,30 @@ public class ZIKDevice implements Parcelable, ZIKFetchable<ZIKDevice> {
         return stream;
     }
 
+    @Nullable
+    public ZIKStream getStateStream() {
+        return this.stream("state");
+    }
+
+    @Nullable
+    public ZIKStream getLogStream() {
+        return this.stream("logs");
+    }
+
+    @NonNull
+    public List<ZIKStream> getPropertyStreams() {
+        ArrayList<ZIKStream> streams = new ArrayList<>();
+        if ( !streamLinks.isEmpty() ) {
+            for( ZIKLink link : streamLinks ) {
+                String streamLinkTitle = link.getTitle();
+                if( streamLinkTitle != null && !streamLinkTitle.equalsIgnoreCase("logs") && !streamLinkTitle.equalsIgnoreCase("state") ) {
+                    streams.add(new ZIKStream(link));
+                }
+            }
+        }
+        return streams;
+    }
+
     @NonNull
     public List<ZIKStream> getAllStreams() {
         ArrayList<ZIKStream> streams = new ArrayList<>();
