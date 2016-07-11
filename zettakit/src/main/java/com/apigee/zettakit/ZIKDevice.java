@@ -30,8 +30,8 @@ public class ZIKDevice implements Parcelable, ZIKFetchable<ZIKDevice> {
 
     @NonNull  private final ZIKDeviceId deviceId;
     @NonNull  private final String type;
-    @Nullable private final String name;
-    @Nullable private final String state;
+    @NonNull private final String name;
+    @NonNull private final String state;
     @Nullable private final ZIKStyle style;
 
     @NonNull  private final Map<String,Object> properties;
@@ -41,8 +41,8 @@ public class ZIKDevice implements Parcelable, ZIKFetchable<ZIKDevice> {
 
     @NonNull  public ZIKDeviceId getDeviceId() { return this.deviceId; }
     @NonNull  public String getType() { return this.type; }
-    @Nullable public String getName() { return this.name; }
-    @Nullable public String getState() { return this.state; }
+    @NonNull public String getName() { return this.name; }
+    @NonNull public String getState() { return this.state; }
     @Nullable public ZIKStyle getStyle() { return this.style; }
 
     @NonNull public Map<String,Object> getProperties() { return this.properties; }
@@ -69,13 +69,13 @@ public class ZIKDevice implements Parcelable, ZIKFetchable<ZIKDevice> {
         if( nameObject != null ) {
             this.name = nameObject.toString();
         } else {
-            this.name = null;
+            this.name = "";
         }
         Object stateObject = properties.get(STATE);
         if( stateObject != null ) {
             this.state = stateObject.toString();
         } else {
-            this.state = null;
+            this.state = "";
         }
 
         if( !links.isEmpty() ) {
