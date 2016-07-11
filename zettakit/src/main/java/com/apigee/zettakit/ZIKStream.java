@@ -123,6 +123,7 @@ public class ZIKStream implements Parcelable {
 
                 @Override
                 public void onFailure(IOException e, Response response) {
+                    ZIKStream.this.streamState = ZIKStreamState.CLOSED;
                     ZIKStream.this.cancelPingTimer();
                     ZIKStream.this.webSocket = null;
                     if( streamListener != null ) {
@@ -166,10 +167,9 @@ public class ZIKStream implements Parcelable {
 
                 @Override
                 public void onClose(int code, String reason) {
-                    ZIKStream.this.webSocket = null;
                     ZIKStream.this.streamState = ZIKStreamState.CLOSED;
                     ZIKStream.this.cancelPingTimer();
-
+                    ZIKStream.this.webSocket = null;
                     if( streamListener != null ) {
                         streamListener.onClose();
                     }
