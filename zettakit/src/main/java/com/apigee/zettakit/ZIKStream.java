@@ -86,6 +86,7 @@ public class ZIKStream implements Parcelable {
     public void close() {
         if( webSocket != null ) {
             try {
+                this.streamState = ZIKStreamState.CLOSED;
                 this.cancelPingTimer();
                 webSocket.close(1000,"");
             } catch ( Exception ignored ) { }
@@ -132,7 +133,7 @@ public class ZIKStream implements Parcelable {
                 @Override
                 public void onMessage(ResponseBody message) throws IOException {
                     try {
-                        if( streamListener != null ) {
+                        if( ZIKStream.this.isOpen() && streamListener != null ) {
                             final String messageString = message.string();
                             final ZIKLink link = ZIKStream.this.link;
                             final String linkTitle = link.getTitle();
